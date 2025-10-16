@@ -144,7 +144,7 @@ getUserOrders: async () => {
   // DASHBOARD COUNTS
   getDashboardCounts: async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/orders/dashboard-counts`, { headers: getAuthHeaders() });
+      const res = await axios.get(`${API_BASE_URL}/orders/overview`, { headers: getAuthHeaders() });
       return res.data; // { totalUsers, totalProducts, totalOrders }
     } catch (err) {
       throw new Error(err.response?.data?.message || "Failed to fetch dashboard counts");
