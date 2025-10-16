@@ -90,15 +90,15 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-gray-300" />
-                <span className="text-gray-300">123 Shopping St, Commerce City, CC 12345</span>
+                <span className="text-gray-300">Address</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-gray-300" />
-                <span className="text-gray-300">+1 (555) 123-4567</span>
+                <span className="text-gray-300">Mobile Number</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-gray-300" />
-                <span className="text-gray-300">support@Tatheer Fatima Collection.com</span>
+                <span className="text-gray-300">Email</span>
               </div>
             </div>
           </div>
