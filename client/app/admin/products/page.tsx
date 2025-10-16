@@ -91,7 +91,7 @@ export default function AdminProducts() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
               <Link href="/" className="text-2xl font-bold text-gray-900">
-                ShopEasy Admin
+                Tatheer Fatima Collection Admin
               </Link>
               <div className="hidden md:flex space-x-6">
                 <Link href="/admin" className="text-gray-600 hover:text-gray-900">

@@ -78,7 +78,7 @@ export default function NewProduct() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="text-2xl font-bold text-gray-900">
-              ShopEasy Admin
+              Tatheer Fatima Collection Admin
             </Link>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">Welcome, {user.name}!</span>

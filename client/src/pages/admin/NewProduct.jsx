@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "../../components/ui/button"
@@ -19,11 +19,20 @@ export default function NewProduct() {
   const [formData, setFormData] = useState({
     name: "",
     price: "",
-    image: "",
     description: "",
     category: "",
     stock: "",
   })
+  const [imageFile, setImageFile] = useState(null)
+
+  // Protect route
+  useEffect(() => {
+    if (user && user.role !== "admin") {
+      navigate("/")
+    }
+  }, [user])
+
+  if (!user) return <div className="p-4 text-gray-600">Loading...</div>
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -31,15 +40,18 @@ export default function NewProduct() {
     setIsLoading(true)
 
     try {
-      await apiService.createProduct({
-        ...formData,
-        price: Number.parseFloat(formData.price),
-        stock: Number.parseInt(formData.stock) || 100,
-      })
+      const data = new FormData()
+      data.append("name", formData.name)
+      data.append("price", parseFloat(formData.price))
+      data.append("stock", parseInt(formData.stock) || 100)
+      data.append("description", formData.description)
+      data.append("category", formData.category)
+      if (imageFile) data.append("image", imageFile)
 
+      await apiService.createProduct(data, true) // second param = isFormData
       navigate("/admin/products")
-    } catch (error) {
-      setError(error.message)
+    } catch (err) {
+      setError(err.message)
     } finally {
       setIsLoading(false)
     }
@@ -52,26 +64,16 @@ export default function NewProduct() {
     })
   }
 
-  if (!user || user.role !== "admin") {
-    navigate("/")
-    return null
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-gray-900">
-              ShopEasy Admin
-            </Link>
+            <Link to="/" className="text-2xl font-bold text-gray-900">Tatheer Fatima Collection Admin</Link>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
               <Link to="/">
-                <Button variant="outline" size="sm">
-                  View Store
-                </Button>
+                <Button variant="outline" size="sm">View Store</Button>
               </Link>
             </div>
           </div>
@@ -144,14 +146,13 @@ export default function NewProduct() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image">Image URL</Label>
+                <Label htmlFor="image">Upload Image</Label>
                 <Input
                   id="image"
                   name="image"
-                  type="url"
-                  placeholder="https://example.com/image.jpg"
-                  value={formData.image}
-                  onChange={handleChange}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files[0])}
                 />
               </div>
 
@@ -184,9 +185,7 @@ export default function NewProduct() {
                   {isLoading ? "Creating..." : "Create Product"}
                 </Button>
                 <Link to="/admin/products">
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
+                  <Button type="button" variant="outline">Cancel</Button>
                 </Link>
               </div>
             </form>

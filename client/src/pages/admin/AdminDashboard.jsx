@@ -23,21 +23,25 @@ export default function AdminDashboard() {
       navigate("/")
       return
     }
-
-    // Fetch dashboard stats
     fetchStats()
   }, [user, navigate])
 
   const fetchStats = async () => {
     try {
-      const [productsData, ordersData] = await Promise.all([apiService.getProducts(), apiService.getOrders()])
+      // Fetch products, orders, and user count in parallel
+      const [productsData, ordersData, usersCountData] = await Promise.all([
+        apiService.getProducts(),
+        apiService.getOrders(),
+        apiService.getUserCount(), // returns { totalUsers: number }
+      ])
 
-      const totalRevenue = ordersData.orders?.reduce((sum, order) => sum + order.totalAmount, 0) || 0
+      // Calculate total revenue
+      const totalRevenue = ordersData?.reduce((sum, order) => sum + order.totalAmount, 0) || 0
 
       setStats({
-        totalProducts: productsData.products?.length || 0,
-        totalOrders: ordersData.orders?.length || 0,
-        totalUsers: 0, // You can implement this if needed
+        totalProducts: productsData?.length || 0,
+        totalOrders: ordersData?.length || 0,
+        totalUsers: usersCountData?.totalUsers || 0,
         totalRevenue,
       })
     } catch (error) {
@@ -45,9 +49,7 @@ export default function AdminDashboard() {
     }
   }
 
-  if (!user || user.role !== "admin") {
-    return null
-  }
+  if (!user || user.role !== "admin") return null
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -57,7 +59,7 @@ export default function AdminDashboard() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
               <Link to="/" className="text-2xl font-bold text-gray-900">
-                ShopEasy Admin
+                Tatheer Fatima Collection Admin
               </Link>
               <div className="hidden md:flex space-x-6">
                 <Link to="/admin" className="text-blue-600 font-medium">
@@ -73,6 +75,12 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
+              <Link to="/admin/products/new">
+                <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Product
+                </Button>
+              </Link>
               <Link to="/">
                 <Button variant="outline" size="sm">
                   View Store
@@ -87,6 +95,28 @@ export default function AdminDashboard() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
           <p className="text-gray-600">Manage your store and track performance</p>
+        </div>
+
+        {/* Quick Action Buttons */}
+        <div className="mb-8 flex flex-wrap gap-4">
+          <Link to="/admin/products/new">
+            <Button size="lg" className="bg-green-600 hover:bg-green-700">
+              <Plus className="h-5 w-5 mr-2" />
+              Add New Product
+            </Button>
+          </Link>
+          <Link to="/admin/products">
+            <Button variant="outline" size="lg">
+              <Package className="h-5 w-5 mr-2" />
+              Manage Products
+            </Button>
+          </Link>
+          <Link to="/admin/orders">
+            <Button variant="outline" size="lg">
+              <ShoppingCart className="h-5 w-5 mr-2" />
+              View Orders
+            </Button>
+          </Link>
         </div>
 
         {/* Stats Cards */}
@@ -117,7 +147,7 @@ export default function AdminDashboard() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</div>
+              <div className="text-2xl font-bold">Rs{stats.totalRevenue.toFixed(2)}</div>
             </CardContent>
           </Card>
 
@@ -132,22 +162,27 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Quick Actions */}
+        {/* Detailed Action Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card>
+          <Card className="border-green-200 bg-green-50">
             <CardHeader>
-              <CardTitle>Product Management</CardTitle>
-              <CardDescription>Add, edit, or remove products from your store</CardDescription>
+              <CardTitle className="text-green-800">Product Management</CardTitle>
+              <CardDescription className="text-green-600">
+                Add, edit, or remove products from your store
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Link to="/admin/products">
-                <Button className="w-full">
+                <Button className="w-full bg-green-600 hover:bg-green-700">
                   <Package className="h-4 w-4 mr-2" />
-                  Manage Products
+                  Manage Products ({stats.totalProducts})
                 </Button>
               </Link>
               <Link to="/admin/products/new">
-                <Button variant="outline" className="w-full bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full border-green-300 text-green-700 hover:bg-green-100 bg-transparent"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add New Product
                 </Button>
@@ -155,28 +190,28 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-blue-200 bg-blue-50">
             <CardHeader>
-              <CardTitle>Order Management</CardTitle>
-              <CardDescription>View and manage customer orders</CardDescription>
+              <CardTitle className="text-blue-800">Order Management</CardTitle>
+              <CardDescription className="text-blue-600">View and manage customer orders</CardDescription>
             </CardHeader>
             <CardContent>
               <Link to="/admin/orders">
-                <Button className="w-full">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700">
                   <ShoppingCart className="h-4 w-4 mr-2" />
-                  View All Orders
+                  View All Orders ({stats.totalOrders})
                 </Button>
               </Link>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-purple-200 bg-purple-50">
             <CardHeader>
-              <CardTitle>Store Analytics</CardTitle>
-              <CardDescription>View detailed analytics and reports</CardDescription>
+              <CardTitle className="text-purple-800">Store Analytics</CardTitle>
+              <CardDescription className="text-purple-600">View detailed analytics and reports</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" disabled>
+              <Button className="w-full bg-purple-600 hover:bg-purple-700" disabled>
                 <TrendingUp className="h-4 w-4 mr-2" />
                 Coming Soon
               </Button>

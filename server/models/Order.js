@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const orderItemSchema = new mongoose.Schema({
   product: {
@@ -23,26 +23,37 @@ const orderSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  items: [orderItemSchema],
+  userName: {               // User name (so admin can see directly)
+    type: String,
+    required: true
+  },
+  userMobile: {             // User mobile (for contacting)
+    type: String,
+    required: true
+  },
+  items: [orderItemSchema], // Ordered items
   totalAmount: {
     type: Number,
     required: true,
     min: 0
   },
-  status: {
+  status: {                 // Order status
     type: String,
-    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+    enum: ['pending', 'confirmed', 'shipped', 'delivered'],
     default: 'pending'
   },
-  shippingAddress: {
-    street: String,
-    city: String,
-    state: String,
-    zipCode: String,
-    country: String
-  }
+  paymentStatus: {          // Payment status
+    type: String,
+    enum: ['unpaid', 'paid'],
+    default: 'unpaid'
+  },
+shippingAddress: {
+  type: String
+}
+
 }, {
   timestamps: true
 });
 
-module.exports = mongoose.models.Order || mongoose.model('Order', orderSchema);
+const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
+export default Order;

@@ -46,9 +46,10 @@ export async function createUser(userData: {
   email: string
   mobile: string
   password: string
+  role?: "user" | "admin"
 }) {
   const client = await clientPromise
-  const db = client.db("shopeasy")
+  const db = client.db("Tatheer Fatima Collection")
 
   // Check if user already exists
   const existingUser = await db.collection("users").findOne({ email: userData.email })
@@ -59,12 +60,11 @@ export async function createUser(userData: {
   // Hash password
   const hashedPassword = await bcrypt.hash(userData.password, 12)
 
-  // Create user (first user becomes admin)
-  const userCount = await db.collection("users").countDocuments()
+  // Create user
   const user = {
     ...userData,
     password: hashedPassword,
-    role: userCount === 0 ? "admin" : "user",
+    role: userData.role || "user", // Default to user if no role specified
     createdAt: new Date(),
   }
 
@@ -77,7 +77,7 @@ export async function createUser(userData: {
 
 export async function authenticateUser(email: string, password: string) {
   const client = await clientPromise
-  const db = client.db("shopeasy")
+  const db = client.db("Tatheer Fatima Collection")
 
   const user = await db.collection("users").findOne({ email })
   if (!user) {
@@ -94,6 +94,35 @@ export async function authenticateUser(email: string, password: string) {
   return { ...userWithoutPassword, _id: user._id.toString() }
 }
 
+export async function createAdminUser() {
+  const client = await clientPromise
+  const db = client.db("Tatheer Fatima Collection")
+
+  // Check if admin already exists
+  const existingAdmin = await db.collection("users").findOne({ email: "admin@Tatheer Fatima Collection.com" })
+  if (existingAdmin) {
+    return existingAdmin
+  }
+
+  // Create admin user
+  const hashedPassword = await bcrypt.hash("admin123", 12)
+
+  const adminUser = {
+    name: "Admin",
+    email: "admin@Tatheer Fatima Collection.com",
+    mobile: "1234567890",
+    password: hashedPassword,
+    role: "admin",
+    createdAt: new Date(),
+  }
+
+  const result = await db.collection("users").insertOne(adminUser)
+
+  // Return admin without password
+  const { password, ...adminWithoutPassword } = adminUser
+  return { ...adminWithoutPassword, _id: result.insertedId.toString() }
+}
+
 export async function createOrder(orderData: {
   userId: string
   items: Array<{
@@ -106,7 +135,7 @@ export async function createOrder(orderData: {
   totalAmount: number
 }) {
   const client = await clientPromise
-  const db = client.db("shopeasy")
+  const db = client.db("Tatheer Fatima Collection")
 
   // Get user details
   const user = await db.collection("users").findOne({ _id: orderData.userId })
@@ -134,7 +163,7 @@ export async function createOrder(orderData: {
 // Product functions
 export async function getAllProducts() {
   const client = await clientPromise
-  const db = client.db("shopeasy")
+  const db = client.db("Tatheer Fatima Collection")
 
   const products = await db.collection("products").find({}).sort({ createdAt: -1 }).toArray()
   return products.map((product) => ({ ...product, _id: product._id.toString() }))
@@ -149,7 +178,7 @@ export async function createProduct(productData: {
   stock?: number
 }) {
   const client = await clientPromise
-  const db = client.db("shopeasy")
+  const db = client.db("Tatheer Fatima Collection")
 
   // Get next ID
   const lastProduct = await db.collection("products").findOne({}, { sort: { id: -1 } })
@@ -178,7 +207,7 @@ export async function updateProduct(
   },
 ) {
   const client = await clientPromise
-  const db = client.db("shopeasy")
+  const db = client.db("Tatheer Fatima Collection")
 
   const result = await db.collection("products").updateOne({ _id: productId }, { $set: productData })
 
@@ -191,7 +220,7 @@ export async function updateProduct(
 
 export async function deleteProduct(productId: string) {
   const client = await clientPromise
-  const db = client.db("shopeasy")
+  const db = client.db("Tatheer Fatima Collection")
 
   const result = await db.collection("products").deleteOne({ _id: productId })
 
@@ -205,7 +234,7 @@ export async function deleteProduct(productId: string) {
 // Order functions
 export async function getAllOrders() {
   const client = await clientPromise
-  const db = client.db("shopeasy")
+  const db = client.db("Tatheer Fatima Collection")
 
   const orders = await db.collection("orders").find({}).sort({ createdAt: -1 }).toArray()
   return orders.map((order) => ({ ...order, _id: order._id.toString() }))
@@ -213,7 +242,7 @@ export async function getAllOrders() {
 
 export async function updateOrderStatus(orderId: string, status: string) {
   const client = await clientPromise
-  const db = client.db("shopeasy")
+  const db = client.db("Tatheer Fatima Collection")
 
   const result = await db.collection("orders").updateOne({ _id: orderId }, { $set: { status } })
 

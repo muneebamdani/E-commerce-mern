@@ -19,14 +19,13 @@ export default function AdminProducts() {
       navigate("/")
       return
     }
-
     fetchProducts()
   }, [user, navigate])
 
   const fetchProducts = async () => {
     try {
       const data = await apiService.getProducts()
-      setProducts(data.products || [])
+      setProducts(Array.isArray(data) ? data : data.products || [])
     } catch (error) {
       console.error("Failed to fetch products:", error)
     } finally {
@@ -35,9 +34,7 @@ export default function AdminProducts() {
   }
 
   const handleDeleteProduct = async (productId) => {
-    if (!confirm("Are you sure you want to delete this product?")) {
-      return
-    }
+    if (!confirm("Are you sure you want to delete this product?")) return
 
     try {
       await apiService.deleteProduct(productId)
@@ -48,9 +45,16 @@ export default function AdminProducts() {
     }
   }
 
-  if (!user || user.role !== "admin") {
-    return null
+  // ✅ PKR currency formatter
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-PK", {
+      style: "currency",
+      currency: "PKR",
+      minimumFractionDigits: 0, // no decimals
+    }).format(amount || 0)
   }
+
+  if (!user || user.role !== "admin") return null
 
   if (isLoading) {
     return (
@@ -65,13 +69,13 @@ export default function AdminProducts() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
+      {/* Navbar */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
               <Link to="/" className="text-2xl font-bold text-gray-900">
-                ShopEasy Admin
+                Tatheer Fatima Collection Admin
               </Link>
               <div className="hidden md:flex space-x-6">
                 <Link to="/admin" className="text-gray-600 hover:text-gray-900">
@@ -97,6 +101,7 @@ export default function AdminProducts() {
         </div>
       </nav>
 
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
@@ -138,7 +143,7 @@ export default function AdminProducts() {
               <Card key={product._id} className="overflow-hidden">
                 <div className="aspect-square relative">
                   <img
-                    src={product.image || "https://via.placeholder.com/300x300?text=Product"}
+                    src={product.image ? `http://localhost:5000/uploads/${product.image}` : "https://via.placeholder.com/300x300?text=Product"}
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
@@ -146,8 +151,12 @@ export default function AdminProducts() {
                 <CardHeader>
                   <CardTitle className="text-lg">{product.name}</CardTitle>
                   <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold text-blue-600">${product.price.toFixed(2)}</span>
-                    <span className="text-sm text-gray-600">Stock: {product.stock || 0}</span>
+                    <span className="text-2xl font-bold text-blue-600">
+                      {formatCurrency(product.price)}
+                    </span>
+                    <span className="text-sm text-gray-600">
+                      Stock: {product.stock || 0}
+                    </span>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">

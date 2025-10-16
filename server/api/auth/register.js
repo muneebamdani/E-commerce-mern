@@ -1,53 +1,55 @@
-const express = require('express');
-const connectDB = require('../../utils/db');
-const User = require('../../models/User');
-const { generateToken } = require('../../utils/auth');
+import express from "express";
+import User from "../../models/User.js";
+import jwt from "jsonwebtoken";
 
-const app = express();
-app.use(express.json());
+const router = express.Router();
 
-app.post('/api/auth/register', async (req, res) => {
+router.post("/", async (req, res) => {
+  const { name, email, password, mobile, address, role = "user" } = req.body; // ✅ added address
+
   try {
-    await connectDB();
-    
-    const { name, email, password } = req.body;
-
-    // Validation
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: 'All fields are required' });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
-    }
-
-    // Check if user exists
+    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
+      return res.status(400).json({ error: "Email already registered" });
     }
 
-    // Create user
-    const user = new User({ name, email, password });
+    // Create new user – password will be hashed automatically in User model
+    const user = new User({
+      name,
+      email,
+      password, // will be hashed in User model
+      mobile,
+      address, // ✅ save address
+      role: role.toLowerCase(),
+    });
+
     await user.save();
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
+    // Respond with user data
     res.status(201).json({
-      message: 'User registered successfully',
+      message: "User registered successfully",
       token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: user.isAdmin
-      }
+        mobile: user.mobile,
+        address: user.address, // ✅ include address in response
+        role: user.role,
+      },
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Registration error:", error);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-module.exports = app;
+export default router;

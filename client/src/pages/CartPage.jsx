@@ -22,7 +22,7 @@ export default function CartPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <Link to="/" className="text-2xl font-bold text-gray-900">
-                ShopEasy
+                Tatheer Fatima Collection
               </Link>
               <div className="flex items-center space-x-4">
                 {user ? (
@@ -58,24 +58,46 @@ export default function CartPage() {
     )
   }
 
-  const handlePlaceOrder = async () => {
-    if (!user) {
-      navigate("/login")
-      return
-    }
-
-    setIsPlacingOrder(true)
-
-    try {
-      const data = await apiService.createOrder(user._id, cartItems, getTotalPrice())
-      clearCart()
-      navigate(`/order-confirmation?orderId=${data.order._id}`)
-    } catch (error) {
-      alert("Failed to place order: " + error.message)
-    } finally {
-      setIsPlacingOrder(false)
-    }
+const handlePlaceOrder = async () => {
+  if (!user) {
+    navigate("/login")
+    return
   }
+
+  setIsPlacingOrder(true)
+
+  try {
+    const orderItems = cartItems.map(item => ({
+      product: item.id,
+      quantity: item.quantity
+    }))
+
+    const orderData = {
+      user: user._id,
+      userName: user.name,
+      userEmail: user.email,
+      items: orderItems,
+      totalAmount: getTotalPrice()
+    }
+
+    // ✅ Include the token in headers
+    const data = await apiService.createOrder(orderData, {
+      headers: {
+        Authorization: `Bearer ${user.token}`
+      }
+    })
+
+    clearCart()
+    navigate(`/my-orders`) // ✅ Redirect to My Orders page
+  } catch (error) {
+    console.error("Order API error:", error.response?.data)
+    alert("Failed to place order: " + (error.response?.data?.message || error.message))
+  } finally {
+    setIsPlacingOrder(false)
+  }
+}
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -83,7 +105,7 @@ export default function CartPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="text-2xl font-bold text-gray-900">
-              ShopEasy
+              Tatheer Fatima Collection
             </Link>
             <div className="flex items-center space-x-4">
               {user ? (
@@ -137,15 +159,20 @@ export default function CartPage() {
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-4">
                       <div className="relative h-20 w-20 flex-shrink-0">
-                        <img
-                          src={item.image || "https://via.placeholder.com/80x80?text=Product"}
-                          alt={item.name}
-                          className="w-full h-full object-cover rounded-md"
-                        />
+ <img
+  src={`http://localhost:5000/${
+    item.image.startsWith("uploads/") ? item.image : "uploads/" + item.image
+  }`}
+  onError={(e) => (e.target.src = "https://via.placeholder.com/80x80?text=Product")}
+  alt={item.name}
+  className="w-full h-full object-cover rounded-md"
+/>
+
+
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">{item.name}</h3>
-                        <p className="text-gray-600">${item.price.toFixed(2)}</p>
+                        <p className="text-gray-600">Rs{item.price.toFixed(2)}</p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Button
@@ -162,7 +189,7 @@ export default function CartPage() {
                         </Button>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                        <p className="font-semibold">Rs{(item.price * item.quantity).toFixed(2)}</p>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -187,16 +214,16 @@ export default function CartPage() {
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${getTotalPrice().toFixed(2)}</span>
+                  <span>Rs{getTotalPrice().toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span>Free</span>
+                  <span>Depending on location</span>
                 </div>
                 <div className="border-t pt-4">
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total</span>
-                    <span>${getTotalPrice().toFixed(2)}</span>
+                    <span>Rs{getTotalPrice().toFixed(2)}</span>
                   </div>
                 </div>
               </CardContent>

@@ -58,7 +58,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="text-2xl font-bold text-gray-900">
-              ShopEasy
+              Tatheer Fatima Collection
             </Link>
             <div className="flex items-center space-x-4">
               {user ? (
@@ -102,7 +102,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">Welcome to ShopEasy</h1>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">Welcome to Tatheer Fatima Collection</h1>
           <p className="text-xl md:text-2xl mb-8">Discover amazing products at unbeatable prices</p>
         </div>
       </div>

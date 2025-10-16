@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import { ArrowLeft, Eye } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { Button } from "../../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { Badge } from "../../components/ui/badge"
@@ -28,7 +28,7 @@ export default function AdminOrders() {
   const fetchOrders = async () => {
     try {
       const data = await apiService.getOrders()
-      setOrders(data.orders || [])
+      setOrders(data || [])
     } catch (error) {
       console.error("Failed to fetch orders:", error)
     } finally {
@@ -36,15 +36,20 @@ export default function AdminOrders() {
     }
   }
 
-  const handleStatusUpdate = async (orderId, newStatus) => {
-    try {
-      await apiService.updateOrderStatus(orderId, newStatus)
-      setOrders(orders.map((order) => (order._id === orderId ? { ...order, status: newStatus } : order)))
-    } catch (error) {
-      console.error("Failed to update order status:", error)
-      alert("Failed to update order status")
-    }
+ const handleStatusUpdate = async (orderId, newStatus) => {
+  try {
+    const updatedOrder = await apiService.updateOrderStatus(orderId, newStatus)
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order._id === updatedOrder.order._id ? { ...order, status: updatedOrder.order.status } : order
+      )
+    )
+  } catch (error) {
+    console.error("Failed to update order status:", error)
+    alert("Failed to update order status")
   }
+}
+
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -84,7 +89,7 @@ export default function AdminOrders() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
               <Link to="/" className="text-2xl font-bold text-gray-900">
-                ShopEasy Admin
+                Tatheer Fatima Collection Admin
               </Link>
               <div className="hidden md:flex space-x-6">
                 <Link to="/admin" className="text-gray-600 hover:text-gray-900">
@@ -139,22 +144,25 @@ export default function AdminOrders() {
                   <div className="flex justify-between items-start">
                     <div>
                       <CardTitle className="text-lg">Order #{order._id.slice(-8)}</CardTitle>
-                      <div className="text-sm text-gray-600 mt-1">
-                        <p>
-                          Customer: {order.userName} ({order.userEmail})
-                        </p>
-                        <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-                        <p>Delivery: {new Date(order.deliveryDate).toLocaleDateString()}</p>
+                      <div className="text-sm text-gray-600 mt-1 space-y-1">
+                        <p>Customer: {order.userName} ({order.userMobile})</p>
+                        <p>Order Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+                        {order.shippingAddress && (
+                          <p>
+                            Delivery Address: {order.shippingAddress}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-green-600 mb-2">${order.totalAmount.toFixed(2)}</div>
+                      <div className="text-2xl font-bold text-green-600 mb-2">Rs{order.totalAmount.toFixed(2)}</div>
                       <Badge className={getStatusColor(order.status)}>
                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                       </Badge>
                     </div>
                   </div>
                 </CardHeader>
+
                 <CardContent>
                   <div className="space-y-4">
                     <div>
@@ -162,16 +170,15 @@ export default function AdminOrders() {
                       <div className="space-y-2">
                         {order.items.map((item, index) => (
                           <div key={index} className="flex justify-between items-center text-sm">
-                            <span>
-                              {item.name} x {item.quantity}
-                            </span>
-                            <span>${(item.price * item.quantity).toFixed(2)}</span>
+                            <span>{item.product.name} x {item.quantity}</span>
+                            <span>Rs{(item.price * item.quantity).toFixed(2)}</span>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center pt-4 border-t">
+                    {/* Status update */}
+                    <div className="flex justify-start items-center pt-4 border-t">
                       <div className="flex items-center space-x-4">
                         <Select value={order.status} onValueChange={(value) => handleStatusUpdate(order._id, value)}>
                           <SelectTrigger className="w-40">
@@ -185,10 +192,6 @@ export default function AdminOrders() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
-                      </Button>
                     </div>
                   </div>
                 </CardContent>

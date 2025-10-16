@@ -53,7 +53,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <Link href="/" className="text-2xl font-bold text-gray-900">
-            ShopEasy
+            Tatheer Fatima Collection
           </Link>
           <p className="text-sm text-gray-600 mt-2">Sign in to access your personalized shopping experience</p>
         </div>

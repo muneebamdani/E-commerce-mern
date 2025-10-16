@@ -7,7 +7,7 @@ const AuthContext = createContext(undefined)
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
 
-  // Load user from localStorage when component mounts
+  // Load user from localStorage on initial render
   useEffect(() => {
     const savedUser = localStorage.getItem("user")
     if (savedUser) {
@@ -23,11 +23,11 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setUser(null)
     localStorage.removeItem("user")
-    // Optionally clear cart on logout
-    localStorage.removeItem("cart")
+    localStorage.removeItem("jwt_token") // ✅ Also remove token on logout
+    localStorage.removeItem("cart") // ✅ Optional: clear cart
   }
 
-  const isAuthenticated = user !== null
+  const isAuthenticated = !!user
 
   return (
     <AuthContext.Provider
@@ -45,7 +45,7 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider")
   }
   return context

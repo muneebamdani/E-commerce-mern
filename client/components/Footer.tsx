@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold">ShopEasy</h3>
+            <h3 className="text-2xl font-bold">Tatheer Fatima Collection</h3>
             <p className="text-gray-300">
               Your one-stop destination for quality products at unbeatable prices. Shop with confidence and convenience.
             </p>
@@ -98,7 +98,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-gray-300" />
-                <span className="text-gray-300">support@shopeasy.com</span>
+                <span className="text-gray-300">support@Tatheer Fatima Collection.com</span>
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-300 text-sm">© 2024 ShopEasy. All rights reserved.</p>
+          <p className="text-gray-300 text-sm">© 2024 Tatheer Fatima Collection. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link href="/privacy" className="text-gray-300 hover:text-white text-sm transition-colors">
               Privacy Policy
