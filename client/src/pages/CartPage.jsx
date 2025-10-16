@@ -160,7 +160,7 @@ const handlePlaceOrder = async () => {
                     <div className="flex items-center space-x-4">
                       <div className="relative h-20 w-20 flex-shrink-0">
  <img
-  src={`http://localhost:5000/${
+  src={`${import.meta.env.VITE_API_BASE_URL}/${
     item.image.startsWith("uploads/") ? item.image : "uploads/" + item.image
   }`}
   onError={(e) => (e.target.src = "https://via.placeholder.com/80x80?text=Product")}

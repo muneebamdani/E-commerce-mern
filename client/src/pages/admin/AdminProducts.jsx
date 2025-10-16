@@ -143,7 +143,7 @@ export default function AdminProducts() {
               <Card key={product._id} className="overflow-hidden">
                 <div className="aspect-square relative">
                   <img
-                    src={product.image ? `http://localhost:5000/uploads/${product.image}` : "https://via.placeholder.com/300x300?text=Product"}
+                    src={product.image ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${product.image}` : "https://via.placeholder.com/300x300?text=Product"}
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
