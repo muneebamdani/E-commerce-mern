@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { ShoppingCart, User } from "lucide-react"
+import { ShoppingCart, User, Menu, X } from "lucide-react"
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardFooter } from "../components/ui/card"
 import { useCart } from "../context/cart-context"
@@ -16,6 +16,7 @@ export default function HomePage() {
   const [products, setProducts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     fetchProducts()
@@ -42,25 +43,26 @@ export default function HomePage() {
     })
   }
 
-  // ✅ PKR currency formatter
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-PK", {
       style: "currency",
       currency: "PKR",
-      minimumFractionDigits: 0, // remove decimals
+      minimumFractionDigits: 0,
     }).format(amount)
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
+      {/* ✅ Navigation with mobile toggle */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="text-2xl font-bold text-gray-900">
               Tatheer Fatima Collection
             </Link>
-            <div className="flex items-center space-x-4">
+
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-4">
                   <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
@@ -71,14 +73,11 @@ export default function HomePage() {
                       </Button>
                     </Link>
                   )}
-  
-  <Link to="/my-orders">
-    <Button variant="ghost" size="sm">
-      My Orders
-    </Button>
-  </Link>
-
-
+                  <Link to="/my-orders">
+                    <Button variant="ghost" size="sm">
+                      My Orders
+                    </Button>
+                  </Link>
                   <Button variant="ghost" size="sm" onClick={logout}>
                     Logout
                   </Button>
@@ -103,22 +102,87 @@ export default function HomePage() {
                 </Button>
               </Link>
             </div>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              className="md:hidden p-2 rounded hover:bg-gray-100"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Dropdown Menu */}
+        {menuOpen && (
+          <div className="md:hidden border-t bg-white">
+            <div className="px-4 py-3 space-y-3">
+              {user ? (
+                <>
+                  <span className="block text-sm text-gray-600">Welcome, {user.name}!</span>
+                  {user.role === "admin" && (
+                    <Link to="/admin" onClick={() => setMenuOpen(false)}>
+                      <Button variant="ghost" size="sm" className="w-full text-left">
+                        Admin Panel
+                      </Button>
+                    </Link>
+                  )}
+                  <Link to="/my-orders" onClick={() => setMenuOpen(false)}>
+                    <Button variant="ghost" size="sm" className="w-full text-left">
+                      My Orders
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      logout()
+                      setMenuOpen(false)
+                    }}
+                    className="w-full text-left"
+                  >
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Link to="/login" onClick={() => setMenuOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full text-left">
+                    <User className="h-4 w-4 mr-2 inline" />
+                    Login
+                  </Button>
+                </Link>
+              )}
+              <Link to="/cart" onClick={() => setMenuOpen(false)}>
+                <Button variant="outline" size="sm" className="w-full relative bg-transparent">
+                  <ShoppingCart className="h-4 w-4 mr-2 inline" />
+                  Cart
+                  {cartItems.length > 0 && (
+                    <span className="absolute top-1 right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {cartItems.length}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
-      {/* Hero Section */}
+      {/* ✅ Hero Section (unchanged) */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">Welcome to Tatheer Fatima Collection</h1>
-          <p className="text-xl md:text-2xl mb-8">Discover amazing products at unbeatable prices</p>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">
+            Welcome to Tatheer Fatima Collection
+          </h1>
+          <p className="text-xl md:text-2xl mb-8">
+            Discover amazing products at unbeatable prices
+          </p>
         </div>
       </div>
 
-      {/* Products Section */}
+      {/* Products Section (unchanged) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Featured Products</h2>
-
         {isLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -140,7 +204,11 @@ export default function HomePage() {
               <Card key={product._id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="aspect-square relative">
                   <img
-                    src={product.image ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${product.image}` : "https://via.placeholder.com/300x300?text=Product"}
+                    src={
+                      product.image
+                        ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${product.image}`
+                        : "https://via.placeholder.com/300x300?text=Product"
+                    }
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
@@ -156,14 +224,20 @@ export default function HomePage() {
                     {formatCurrency(product.price)}
                   </p>
                   {product.description && (
-                    <p className="text-gray-600 text-sm mt-2 line-clamp-2">{product.description}</p>
+                    <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+                      {product.description}
+                    </p>
                   )}
                   {product.stock !== undefined && (
                     <p className="text-sm text-gray-500 mt-1">Stock: {product.stock}</p>
                   )}
                 </CardContent>
                 <CardFooter className="p-4 pt-0">
-                  <Button onClick={() => handleAddToCart(product)} className="w-full" disabled={product.stock === 0}>
+                  <Button
+                    onClick={() => handleAddToCart(product)}
+                    className="w-full"
+                    disabled={product.stock === 0}
+                  >
                     {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
                   </Button>
                 </CardFooter>
@@ -173,7 +247,7 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Footer */}
+      {/* Footer (unchanged) */}
       <Footer />
     </div>
   )
