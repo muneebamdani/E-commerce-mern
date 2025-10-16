@@ -58,46 +58,41 @@ export default function CartPage() {
     )
   }
 
-const handlePlaceOrder = async () => {
-  if (!user) {
-    navigate("/login")
-    return
-  }
-
-  setIsPlacingOrder(true)
-
-  try {
-    const orderItems = cartItems.map(item => ({
-      product: item.id,
-      quantity: item.quantity
-    }))
-
-    const orderData = {
-      user: user._id,
-      userName: user.name,
-      userEmail: user.email,
-      items: orderItems,
-      totalAmount: getTotalPrice()
+  const handlePlaceOrder = async () => {
+    if (!user) {
+      navigate("/login")
+      return
     }
 
-    // ✅ Include the token in headers
-    const data = await apiService.createOrder(orderData, {
-      headers: {
-        Authorization: `Bearer ${user.token}`
+    setIsPlacingOrder(true)
+
+    try {
+      const orderItems = cartItems.map((item) => ({
+        product: item.id,
+        quantity: item.quantity,
+      }))
+
+      const orderData = {
+        user: user._id,
+        userName: user.name,
+        userEmail: user.email,
+        items: orderItems,
+        totalAmount: getTotalPrice(),
       }
-    })
 
-    clearCart()
-    navigate(`/my-orders`) // ✅ Redirect to My Orders page
-  } catch (error) {
-    console.error("Order API error:", error.response?.data)
-    alert("Failed to place order: " + (error.response?.data?.message || error.message))
-  } finally {
-    setIsPlacingOrder(false)
+      const data = await apiService.createOrder(orderData, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      })
+
+      clearCart()
+      navigate(`/my-orders`)
+    } catch (error) {
+      console.error("Order API error:", error.response?.data)
+      alert("Failed to place order: " + (error.response?.data?.message || error.message))
+    } finally {
+      setIsPlacingOrder(false)
+    }
   }
-}
-
-
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -151,61 +146,72 @@ const handlePlaceOrder = async () => {
           </div>
         )}
 
+        {/* ✅ Responsive Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <div className="space-y-4">
-              {cartItems.map((item) => (
-                <Card key={item.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="relative h-20 w-20 flex-shrink-0">
- <img
-  src={`${import.meta.env.VITE_API_BASE_URL}/${
-    item.image.startsWith("uploads/") ? item.image : "uploads/" + item.image
-  }`}
-  onError={(e) => (e.target.src = "https://via.placeholder.com/80x80?text=Product")}
-  alt={item.name}
-  className="w-full h-full object-cover rounded-md"
-/>
-
-
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{item.name}</h3>
-                        <p className="text-gray-600">Rs{item.price.toFixed(2)}</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          disabled={item.quantity <= 1}
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <span className="w-8 text-center">{item.quantity}</span>
-                        <Button variant="outline" size="sm" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold">Rs{(item.price * item.quantity).toFixed(2)}</p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFromCart(item.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+          {/* Cart Items */}
+          <div className="lg:col-span-2 space-y-4">
+            {cartItems.map((item) => (
+              <Card key={item.id}>
+                <CardContent className="p-4 sm:p-6">
+                  {/* ✅ Responsive Flex */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
+                    <div className="relative h-20 w-20 flex-shrink-0 mx-auto sm:mx-0">
+                      <img
+                        src={`${import.meta.env.VITE_API_BASE_URL}/${
+                          item.image.startsWith("uploads/") ? item.image : "uploads/" + item.image
+                        }`}
+                        onError={(e) =>
+                          (e.target.src = "https://via.placeholder.com/80x80?text=Product")
+                        }
+                        alt={item.name}
+                        className="w-full h-full object-cover rounded-md"
+                      />
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+
+                    <div className="flex-1 text-center sm:text-left">
+                      <h3 className="font-semibold text-lg">{item.name}</h3>
+                      <p className="text-gray-600">Rs{item.price.toFixed(2)}</p>
+                    </div>
+
+                    <div className="flex justify-center sm:justify-start items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        disabled={item.quantity <= 1}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="w-8 text-center">{item.quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    <div className="text-center sm:text-right">
+                      <p className="font-semibold">
+                        Rs{(item.price * item.quantity).toFixed(2)}
+                      </p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFromCart(item.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
+          {/* Order Summary */}
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
@@ -228,7 +234,12 @@ const handlePlaceOrder = async () => {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button onClick={handlePlaceOrder} className="w-full" size="lg" disabled={isPlacingOrder || !user}>
+                <Button
+                  onClick={handlePlaceOrder}
+                  className="w-full"
+                  size="lg"
+                  disabled={isPlacingOrder || !user}
+                >
                   {isPlacingOrder ? "Placing Order..." : "Place Order"}
                 </Button>
               </CardFooter>
