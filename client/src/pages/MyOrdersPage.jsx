@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { Package, Home } from "lucide-react"
+import { Package } from "lucide-react"
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { useAuth } from "../context/auth-context"
@@ -67,14 +67,25 @@ export default function MyOrdersPage() {
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-gray-900">
-              My Orders
-            </Link>
+            <h1 className="text-2xl font-bold text-gray-900">My Orders</h1>
 
-            {/* 🏠 Back to Home Button */}
+            {/* 🏠 Back to Home button */}
             <Link to="/">
               <Button variant="outline" className="flex items-center gap-2">
-                <Home className="h-4 w-4" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h6m8-11v10a1 1 0 01-1 1h-6"
+                  />
+                </svg>
                 Back to Home
               </Button>
             </Link>
@@ -87,7 +98,7 @@ export default function MyOrdersPage() {
         {orders.length === 0 ? (
           <p className="text-gray-600 text-center">You haven’t placed any orders yet.</p>
         ) : (
-          orders.map(order => (
+          orders.map((order) => (
             <Card key={order._id} className="mb-6">
               <CardHeader>
                 <CardTitle className="flex items-center">
