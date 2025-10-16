@@ -51,9 +51,15 @@ export default function HomePage() {
     }).format(amount)
   }
 
+  // ✅ Calculate total quantity for cart icon
+  const totalCartQuantity = cartItems.reduce(
+    (total, item) => total + (item.quantity || 1),
+    0
+  )
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* ✅ Navigation with mobile toggle */}
+      {/* ✅ Navigation */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -94,9 +100,9 @@ export default function HomePage() {
                 <Button variant="outline" size="sm" className="relative bg-transparent">
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   Cart
-                  {cartItems.length > 0 && (
+                  {totalCartQuantity > 0 && (
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {cartItems.length}
+                      {totalCartQuantity}
                     </span>
                   )}
                 </Button>
@@ -156,9 +162,9 @@ export default function HomePage() {
                 <Button variant="outline" size="sm" className="w-full relative bg-transparent">
                   <ShoppingCart className="h-4 w-4 mr-2 inline" />
                   Cart
-                  {cartItems.length > 0 && (
+                  {totalCartQuantity > 0 && (
                     <span className="absolute top-1 right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {cartItems.length}
+                      {totalCartQuantity}
                     </span>
                   )}
                 </Button>
@@ -168,7 +174,7 @@ export default function HomePage() {
         )}
       </nav>
 
-      {/* ✅ Hero Section (unchanged) */}
+      {/* ✅ Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
@@ -180,9 +186,12 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Products Section (unchanged) */}
+      {/* ✅ Products Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Featured Products</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+          Featured Products
+        </h2>
+
         {isLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -200,54 +209,70 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <Card key={product._id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-square relative">
-                  <img
-                    src={
-                      product.image
-                        ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${product.image}`
-                        : "https://via.placeholder.com/300x300?text=Product"
-                    }
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                  {product.stock === 0 && (
-                    <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
-                      Out of Stock
-                    </span>
-                  )}
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {formatCurrency(product.price)}
-                  </p>
-                  {product.description && (
-                    <p className="text-gray-600 text-sm mt-2 line-clamp-2">
-                      {product.description}
+            {products.map((product) => {
+              const cartItem = cartItems.find((item) => item.id === product._id)
+              const quantity = cartItem ? cartItem.quantity : 0
+
+              return (
+                <Card
+                  key={product._id}
+                  className="overflow-hidden hover:shadow-lg transition-shadow"
+                >
+                  <div className="aspect-square relative">
+                    <img
+                      src={
+                        product.image
+                          ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${product.image}`
+                          : "https://via.placeholder.com/300x300?text=Product"
+                      }
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {product.stock === 0 && (
+                      <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+                        Out of Stock
+                      </span>
+                    )}
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {formatCurrency(product.price)}
                     </p>
-                  )}
-                  {product.stock !== undefined && (
-                    <p className="text-sm text-gray-500 mt-1">Stock: {product.stock}</p>
-                  )}
-                </CardContent>
-                <CardFooter className="p-4 pt-0">
-                  <Button
-                    onClick={() => handleAddToCart(product)}
-                    className="w-full"
-                    disabled={product.stock === 0}
-                  >
-                    {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+                    {product.description && (
+                      <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+                        {product.description}
+                      </p>
+                    )}
+                    {product.stock !== undefined && (
+                      <p className="text-sm text-gray-500 mt-1">Stock: {product.stock}</p>
+                    )}
+                  </CardContent>
+
+                  <CardFooter className="p-4 pt-0 flex items-center justify-between">
+                    <Button
+                      onClick={() => handleAddToCart(product)}
+                      className="flex-1"
+                      disabled={product.stock === 0}
+                    >
+                      {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+                    </Button>
+
+                    {/* 🟢 Quantity Badge */}
+                    {quantity > 0 && (
+                      <span className="ml-3 bg-blue-600 text-white text-sm rounded-full h-6 w-6 flex items-center justify-center">
+                        {quantity}
+                      </span>
+                    )}
+                  </CardFooter>
+                </Card>
+              )
+            })}
           </div>
         )}
       </div>
 
-      {/* Footer (unchanged) */}
+      {/* ✅ Footer */}
       <Footer />
     </div>
   )
