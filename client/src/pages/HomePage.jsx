@@ -250,13 +250,21 @@ export default function HomePage() {
                   </CardContent>
 
                   <CardFooter className="p-4 pt-0 flex items-center justify-between">
-                    <Button
-                      onClick={() => handleAddToCart(product)}
-                      className="flex-1"
-                      disabled={product.stock === 0}
-                    >
-                      {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
-                    </Button>
+                   <Button
+  onClick={() => handleAddToCart(product)}
+  className="w-full"
+  disabled={product.stock === 0}
+>
+  {product.stock === 0
+    ? "Out of Stock"
+    : (() => {
+        const itemInCart = cartItems.find((item) => item.id === product._id)
+        return itemInCart
+          ? `Added (${itemInCart.quantity})`
+          : "Add to Cart"
+      })()}
+</Button>
+
 
                     {/* 🟢 Quantity Badge */}
                     {quantity > 0 && (
