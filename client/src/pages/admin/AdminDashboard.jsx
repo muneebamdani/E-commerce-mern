@@ -28,20 +28,18 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      // Fetch products, orders, and user count in parallel
-      const [productsData, ordersData, usersCountData] = await Promise.all([
+      const [productsData, ordersData, dashboardCounts] = await Promise.all([
         apiService.getProducts(),
         apiService.getOrders(),
-        apiService.getUserCount(), // returns { totalUsers: number }
+        apiService.getDashboardCounts(),
       ])
 
-      // Calculate total revenue
       const totalRevenue = ordersData?.reduce((sum, order) => sum + order.totalAmount, 0) || 0
 
       setStats({
         totalProducts: productsData?.length || 0,
         totalOrders: ordersData?.length || 0,
-        totalUsers: usersCountData?.totalUsers || 0,
+        totalUsers: dashboardCounts?.totalUsers || 0,
         totalRevenue,
       })
     } catch (error) {
@@ -62,15 +60,9 @@ export default function AdminDashboard() {
                 Tatheer Fatima Collection Admin
               </Link>
               <div className="hidden md:flex space-x-6">
-                <Link to="/admin" className="text-blue-600 font-medium">
-                  Dashboard
-                </Link>
-                <Link to="/admin/products" className="text-gray-600 hover:text-gray-900">
-                  Products
-                </Link>
-                <Link to="/admin/orders" className="text-gray-600 hover:text-gray-900">
-                  Orders
-                </Link>
+                <Link to="/admin" className="text-blue-600 font-medium">Dashboard</Link>
+                <Link to="/admin/products" className="text-gray-600 hover:text-gray-900">Products</Link>
+                <Link to="/admin/orders" className="text-gray-600 hover:text-gray-900">Orders</Link>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -82,9 +74,7 @@ export default function AdminDashboard() {
                 </Button>
               </Link>
               <Link to="/">
-                <Button variant="outline" size="sm">
-                  View Store
-                </Button>
+                <Button variant="outline" size="sm">View Store</Button>
               </Link>
             </div>
           </div>
@@ -95,28 +85,6 @@ export default function AdminDashboard() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
           <p className="text-gray-600">Manage your store and track performance</p>
-        </div>
-
-        {/* Quick Action Buttons */}
-        <div className="mb-8 flex flex-wrap gap-4">
-          <Link to="/admin/products/new">
-            <Button size="lg" className="bg-green-600 hover:bg-green-700">
-              <Plus className="h-5 w-5 mr-2" />
-              Add New Product
-            </Button>
-          </Link>
-          <Link to="/admin/products">
-            <Button variant="outline" size="lg">
-              <Package className="h-5 w-5 mr-2" />
-              Manage Products
-            </Button>
-          </Link>
-          <Link to="/admin/orders">
-            <Button variant="outline" size="lg">
-              <ShoppingCart className="h-5 w-5 mr-2" />
-              View Orders
-            </Button>
-          </Link>
         </div>
 
         {/* Stats Cards */}
@@ -158,63 +126,6 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalUsers}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Detailed Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="border-green-200 bg-green-50">
-            <CardHeader>
-              <CardTitle className="text-green-800">Product Management</CardTitle>
-              <CardDescription className="text-green-600">
-                Add, edit, or remove products from your store
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Link to="/admin/products">
-                <Button className="w-full bg-green-600 hover:bg-green-700">
-                  <Package className="h-4 w-4 mr-2" />
-                  Manage Products ({stats.totalProducts})
-                </Button>
-              </Link>
-              <Link to="/admin/products/new">
-                <Button
-                  variant="outline"
-                  className="w-full border-green-300 text-green-700 hover:bg-green-100 bg-transparent"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New Product
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="border-blue-200 bg-blue-50">
-            <CardHeader>
-              <CardTitle className="text-blue-800">Order Management</CardTitle>
-              <CardDescription className="text-blue-600">View and manage customer orders</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Link to="/admin/orders">
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  View All Orders ({stats.totalOrders})
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="border-purple-200 bg-purple-50">
-            <CardHeader>
-              <CardTitle className="text-purple-800">Store Analytics</CardTitle>
-              <CardDescription className="text-purple-600">View detailed analytics and reports</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full bg-purple-600 hover:bg-purple-700" disabled>
-                <TrendingUp className="h-4 w-4 mr-2" />
-                Coming Soon
-              </Button>
             </CardContent>
           </Card>
         </div>

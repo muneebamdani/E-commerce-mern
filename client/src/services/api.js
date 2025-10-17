@@ -15,187 +15,102 @@ const getAuthHeaders = () => {
 export const apiService = {
   // -------------------- AUTH --------------------
   signin: async ({ email, password }) => {
-    try {
-      const res = await axios.post(
-        `${API_BASE_URL}/login`,
-        { email, password },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.error || "Login failed");
-    }
+    const res = await axios.post(
+      `${API_BASE_URL}/login`,
+      { email, password },
+      { headers: { "Content-Type": "application/json" } }
+    );
+    return res.data;
   },
 
   signup: async (name, email, mobile, password, address) => {
-    try {
-      const res = await axios.post(
-        `${API_BASE_URL}/register`,
-        { name, email, mobile, password, address },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.error || "Registration failed");
-    }
+    const res = await axios.post(
+      `${API_BASE_URL}/register`,
+      { name, email, mobile, password, address },
+      { headers: { "Content-Type": "application/json" } }
+    );
+    return res.data;
   },
 
   // -------------------- DASHBOARD / STATS --------------------
   getDashboardCounts: async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/users/overview`, { headers: getAuthHeaders() });
-      return res.data; // { userCount, productCount, totalRevenue }
+      const res = await axios.get(`${API_BASE_URL}/users/overview`, {
+        headers: getAuthHeaders(),
+      });
+      return res.data; // { totalUsers, totalProducts, totalRevenue }
     } catch (err) {
       throw new Error(err.response?.data?.message || "Failed to fetch dashboard counts");
     }
   },
 
-  getUserCount: async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/users/overview`, { headers: getAuthHeaders() });
-      return res.data.userCount;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to fetch user count");
-    }
-  },
-
-  getProductCount: async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/users/overview`, { headers: getAuthHeaders() });
-      return res.data.productCount;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to fetch product count");
-    }
-  },
-
-  getRevenueCount: async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/users/overview`, { headers: getAuthHeaders() });
-      return res.data.totalRevenue;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to fetch total revenue");
-    }
-  },
-
   // -------------------- PRODUCTS --------------------
   getProducts: async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/products`, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to fetch products");
-    }
+    const res = await axios.get(`${API_BASE_URL}/products`, { headers: getAuthHeaders() });
+    return res.data;
   },
 
   createProduct: async (productData, isFormData = false) => {
-    try {
-      const headers = getAuthHeaders();
-      if (isFormData) delete headers["Content-Type"];
-      const res = await axios.post(`${API_BASE_URL}/products`, productData, { headers });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to create product");
-    }
+    const headers = getAuthHeaders();
+    if (isFormData) delete headers["Content-Type"];
+    const res = await axios.post(`${API_BASE_URL}/products`, productData, { headers });
+    return res.data;
   },
 
   updateProduct: async (id, updatedData) => {
-    try {
-      const res = await axios.put(`${API_BASE_URL}/products/${id}`, updatedData, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to update product");
-    }
+    const res = await axios.put(`${API_BASE_URL}/products/${id}`, updatedData, { headers: getAuthHeaders() });
+    return res.data;
   },
 
   deleteProduct: async (id) => {
-    try {
-      const res = await axios.delete(`${API_BASE_URL}/products/${id}`, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to delete product");
-    }
+    const res = await axios.delete(`${API_BASE_URL}/products/${id}`, { headers: getAuthHeaders() });
+    return res.data;
   },
 
   // -------------------- ORDERS --------------------
   createOrder: async (orderData) => {
-    try {
-      const res = await axios.post(`${API_BASE_URL}/orders`, orderData, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to place order");
-    }
+    const res = await axios.post(`${API_BASE_URL}/orders`, orderData, { headers: getAuthHeaders() });
+    return res.data;
   },
 
   getOrders: async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/orders`, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to fetch orders");
-    }
+    const res = await axios.get(`${API_BASE_URL}/orders`, { headers: getAuthHeaders() });
+    return res.data;
   },
 
   getUserOrders: async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/orders/user`, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to fetch your orders");
-    }
+    const res = await axios.get(`${API_BASE_URL}/orders/user`, { headers: getAuthHeaders() });
+    return res.data;
   },
 
   updateOrderStatus: async (orderId, status) => {
-    try {
-      const res = await axios.put(`${API_BASE_URL}/orders/${orderId}/status`, { status }, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to update order status");
-    }
+    const res = await axios.put(`${API_BASE_URL}/orders/${orderId}/status`, { status }, { headers: getAuthHeaders() });
+    return res.data;
   },
 
   // -------------------- CART --------------------
   getCart: async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/cart`, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to fetch cart");
-    }
+    const res = await axios.get(`${API_BASE_URL}/cart`, { headers: getAuthHeaders() });
+    return res.data;
   },
 
   addToCart: async (productId, quantity = 1) => {
-    try {
-      const res = await axios.post(`${API_BASE_URL}/cart`, { productId, quantity }, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to add to cart");
-    }
+    const res = await axios.post(`${API_BASE_URL}/cart`, { productId, quantity }, { headers: getAuthHeaders() });
+    return res.data;
   },
 
   updateCartItem: async (productId, quantity) => {
-    try {
-      const res = await axios.put(`${API_BASE_URL}/cart/${productId}`, { quantity }, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to update cart item");
-    }
+    const res = await axios.put(`${API_BASE_URL}/cart/${productId}`, { quantity }, { headers: getAuthHeaders() });
+    return res.data;
   },
 
   removeFromCart: async (productId) => {
-    try {
-      const res = await axios.delete(`${API_BASE_URL}/cart/${productId}`, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to remove from cart");
-    }
+    const res = await axios.delete(`${API_BASE_URL}/cart/${productId}`, { headers: getAuthHeaders() });
+    return res.data;
   },
 
   clearCart: async () => {
-    try {
-      const res = await axios.delete(`${API_BASE_URL}/cart`, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to clear cart");
-    }
+    const res = await axios.delete(`${API_BASE_URL}/cart`, { headers: getAuthHeaders() });
+    return res.data;
   },
 };
