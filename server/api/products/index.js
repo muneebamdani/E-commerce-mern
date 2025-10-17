@@ -3,7 +3,7 @@ import connectDB from "../../utils/db.js";
 import Product from "../../models/Product.js";
 import { verifyToken, requireAdmin } from "../../utils/auth.js";
 import multer from "multer";
-import path from "path";
+import cloudinary from "../../utils/cloudinary.js";
 
 const router = express.Router();
 
@@ -13,17 +13,22 @@ router.use(async (req, res, next) => {
   next();
 });
 
-// Multer config for image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // folder to save images
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage });
+// Multer memory storage for Cloudinary
+const upload = multer({ storage: multer.memoryStorage() });
+
+// Helper function to upload image to Cloudinary
+const uploadToCloudinary = (fileBuffer) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "products" },
+      (error, result) => {
+        if (result) resolve(result);
+        else reject(error);
+      }
+    );
+    stream.end(fileBuffer);
+  });
+};
 
 // ✅ GET all products
 router.get("/", async (req, res) => {
@@ -36,13 +41,16 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ CREATE new product (admin only) with image upload
+// ✅ CREATE new product (admin only) with Cloudinary image
 router.post("/", verifyToken, requireAdmin, upload.single("image"), async (req, res) => {
   try {
     const { name, description, price, stock, category } = req.body;
 
-    // Save only filename in DB
-    const image = req.file ? req.file.filename : null;
+    let image = "";
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer);
+      image = result.secure_url;
+    }
 
     const newProduct = new Product({
       name,
@@ -74,13 +82,14 @@ router.delete("/:id", verifyToken, requireAdmin, async (req, res) => {
   }
 });
 
-// ✅ UPDATE product (admin only) with optional image upload
+// ✅ UPDATE product (admin only) with optional Cloudinary image
 router.put("/:id", verifyToken, requireAdmin, upload.single("image"), async (req, res) => {
   try {
     const { price, ...rest } = req.body;
 
     if (req.file) {
-      rest.image = req.file.filename; // save only filename
+      const result = await uploadToCloudinary(req.file.buffer);
+      rest.image = result.secure_url;
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
