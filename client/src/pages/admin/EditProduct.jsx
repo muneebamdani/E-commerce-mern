@@ -15,6 +15,7 @@ export default function EditProduct() {
   const { id } = useParams()
   const { user } = useAuth()
   const navigate = useNavigate()
+
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [formData, setFormData] = useState({
@@ -25,6 +26,7 @@ export default function EditProduct() {
     category: "",
     stock: "",
   })
+  const [imageFile, setImageFile] = useState(null)
 
   useEffect(() => {
     if (!user || user.role !== "admin") {
@@ -50,7 +52,7 @@ export default function EditProduct() {
       } else {
         setError("Product not found")
       }
-    } catch (error) {
+    } catch (err) {
       setError("Failed to load product")
     }
   }
@@ -66,29 +68,52 @@ export default function EditProduct() {
     e.preventDefault()
     setError("")
     setIsLoading(true)
+
     try {
-      await apiService.updateProduct(id, {
-        ...formData,
-        price: Number(formData.price),
-        stock: Number(formData.stock),
-      })
+      let payload
+      if (imageFile) {
+        payload = new FormData()
+        payload.append("name", formData.name)
+        payload.append("price", Number(formData.price))
+        payload.append("stock", Number(formData.stock))
+        payload.append("description", formData.description)
+        payload.append("category", formData.category)
+        payload.append("image", imageFile)
+      } else {
+        payload = {
+          ...formData,
+          price: Number(formData.price),
+          stock: Number(formData.stock),
+        }
+      }
+
+      await apiService.updateProduct(id, payload, !!imageFile) // pass true if using FormData
       navigate("/admin/products")
-    } catch (error) {
+    } catch (err) {
       setError("Failed to update product")
+      console.error(err)
     } finally {
       setIsLoading(false)
     }
   }
+
+  if (!user) return <div className="p-4 text-gray-600">Loading...</div>
 
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-gray-900">Tatheer Fatima Collection Admin</Link>
+            <Link to="/" className="text-2xl font-bold text-gray-900">
+              Tatheer Fatima Collection Admin
+            </Link>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
-              <Link to="/"><Button variant="outline" size="sm">View Store</Button></Link>
+              <Link to="/">
+                <Button variant="outline" size="sm">
+                  View Store
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -109,10 +134,16 @@ export default function EditProduct() {
         </div>
 
         <Card>
-          <CardHeader><CardTitle>Edit Product</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>Edit Product</CardTitle>
+          </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {error && <div className="text-red-600">{error}</div>}
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+                  {error}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="name">Product Name *</Label>
@@ -122,7 +153,14 @@ export default function EditProduct() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="price">Price *</Label>
-                  <Input name="price" type="number" step="0.01" value={formData.price} onChange={handleChange} required />
+                  <Input
+                    name="price"
+                    type="number"
+                    step="0.01"
+                    value={formData.price}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="stock">Stock</Label>
@@ -131,8 +169,21 @@ export default function EditProduct() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image">Image URL</Label>
-                <Input name="image" value={formData.image} onChange={handleChange} />
+                <Label htmlFor="image">Current Image</Label>
+                {formData.image && (
+                  <img
+                    src={formData.image}
+                    alt="Current product"
+                    className="w-32 h-32 object-cover rounded-md mb-2"
+                  />
+                )}
+                <Label htmlFor="imageFile">Upload New Image</Label>
+                <Input
+                  id="imageFile"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files[0])}
+                />
               </div>
 
               <div className="space-y-2">
@@ -142,14 +193,23 @@ export default function EditProduct() {
 
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
-                <Textarea name="description" value={formData.description} onChange={handleChange} rows={4} />
+                <Textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows={4}
+                />
               </div>
 
               <div className="flex space-x-4">
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading} className="flex-1">
                   {isLoading ? "Saving..." : "Update Product"}
                 </Button>
-                <Link to="/admin/products"><Button variant="outline">Cancel</Button></Link>
+                <Link to="/admin/products">
+                  <Button variant="outline" className="flex-1">
+                    Cancel
+                  </Button>
+                </Link>
               </div>
             </form>
           </CardContent>

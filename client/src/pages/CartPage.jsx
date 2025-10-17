@@ -156,16 +156,15 @@ export default function CartPage() {
                   {/* ✅ Responsive Flex */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
                     <div className="relative h-20 w-20 flex-shrink-0 mx-auto sm:mx-0">
-                      <img
-                        src={`${import.meta.env.VITE_API_BASE_URL}/${
-                          item.image.startsWith("uploads/") ? item.image : "uploads/" + item.image
-                        }`}
-                        onError={(e) =>
-                          (e.target.src = "https://via.placeholder.com/80x80?text=Product")
-                        }
-                        alt={item.name}
-                        className="w-full h-full object-cover rounded-md"
-                      />
+                     <img
+  src={item.image ? item.image : "https://via.placeholder.com/80x80?text=Product"}
+  onError={(e) =>
+    (e.target.src = "https://via.placeholder.com/80x80?text=Product")
+  }
+  alt={item.name}
+  className="w-full h-full object-cover rounded-md"
+/>
+
                     </div>
 
                     <div className="flex-1 text-center sm:text-left">

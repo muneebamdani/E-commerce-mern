@@ -219,15 +219,12 @@ export default function HomePage() {
                   className="overflow-hidden hover:shadow-lg transition-shadow"
                 >
                   <div className="aspect-square relative">
-                    <img
-                      src={
-                        product.image
-                          ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${product.image}`
-                          : "https://via.placeholder.com/300x300?text=Product"
-                      }
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
+                   <img
+  src={product.image ? product.image : "https://via.placeholder.com/300x300?text=Product"}
+  alt={product.name}
+  className="w-full h-full object-cover"
+/>
+
                     {product.stock === 0 && (
                       <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
                         Out of Stock
