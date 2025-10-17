@@ -141,15 +141,16 @@ export default function AdminProducts() {
             {products.map((product) => (
               <Card key={product._id} className="overflow-hidden flex flex-col">
                 <div className="aspect-square relative w-full">
-                  <img
-                    src={
-                      product.image
-                        ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${product.image}`
-                        : "https://via.placeholder.com/300x300?text=Product"
-                    }
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
+                 <img
+  src={
+    product.image
+      ? product.image
+      : "https://via.placeholder.com/300x300?text=Product"
+  }
+  alt={product.name}
+  className="w-full h-full object-cover"
+/>
+
                 </div>
                 <CardHeader>
                   <CardTitle className="text-lg truncate">{product.name}</CardTitle>
