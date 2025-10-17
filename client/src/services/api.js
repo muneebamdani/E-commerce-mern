@@ -15,29 +15,23 @@ const getAuthHeaders = () => {
 export const apiService = {
   // -------------------- AUTH --------------------
   signin: async ({ email, password }) => {
-    const res = await axios.post(
-      `${API_BASE_URL}/login`,
-      { email, password },
-      { headers: { "Content-Type": "application/json" } }
-    );
+    const res = await axios.post(`${API_BASE_URL}/login`, { email, password }, {
+      headers: { "Content-Type": "application/json" }
+    });
     return res.data;
   },
 
   signup: async (name, email, mobile, password, address) => {
-    const res = await axios.post(
-      `${API_BASE_URL}/register`,
-      { name, email, mobile, password, address },
-      { headers: { "Content-Type": "application/json" } }
-    );
+    const res = await axios.post(`${API_BASE_URL}/register`, { name, email, mobile, password, address }, {
+      headers: { "Content-Type": "application/json" }
+    });
     return res.data;
   },
 
   // -------------------- DASHBOARD / STATS --------------------
   getDashboardCounts: async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/users/overview`, {
-        headers: getAuthHeaders(),
-      });
+      const res = await axios.get(`${API_BASE_URL}/users/overview`, { headers: getAuthHeaders() });
       return res.data; // { totalUsers, totalProducts, totalRevenue }
     } catch (err) {
       throw new Error(err.response?.data?.message || "Failed to fetch dashboard counts");
@@ -52,14 +46,20 @@ export const apiService = {
 
   createProduct: async (productData, isFormData = false) => {
     const headers = getAuthHeaders();
-    if (isFormData) delete headers["Content-Type"];
+    if (isFormData) delete headers["Content-Type"]; // browser sets FormData automatically
     const res = await axios.post(`${API_BASE_URL}/products`, productData, { headers });
     return res.data;
   },
 
-  updateProduct: async (id, updatedData) => {
-    const res = await axios.put(`${API_BASE_URL}/products/${id}`, updatedData, { headers: getAuthHeaders() });
-    return res.data;
+  updateProduct: async (id, updatedData, isFormData = false) => {
+    try {
+      const headers = getAuthHeaders();
+      if (isFormData) delete headers["Content-Type"];
+      const res = await axios.put(`${API_BASE_URL}/products/${id}`, updatedData, { headers });
+      return res.data;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || "Failed to update product");
+    }
   },
 
   deleteProduct: async (id) => {
@@ -68,18 +68,8 @@ export const apiService = {
   },
 
   // -------------------- ORDERS --------------------
-  createOrder: async (orderData) => {
-    const res = await axios.post(`${API_BASE_URL}/orders`, orderData, { headers: getAuthHeaders() });
-    return res.data;
-  },
-
   getOrders: async () => {
     const res = await axios.get(`${API_BASE_URL}/orders`, { headers: getAuthHeaders() });
-    return res.data;
-  },
-
-  getUserOrders: async () => {
-    const res = await axios.get(`${API_BASE_URL}/orders/user`, { headers: getAuthHeaders() });
     return res.data;
   },
 
