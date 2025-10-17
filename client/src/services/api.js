@@ -31,7 +31,7 @@ export const apiService = {
     try {
       const res = await axios.post(
         `${API_BASE_URL}/register`,
-      { name, email, mobile, password, address }, // ✅ include address
+        { name, email, mobile, password, address },
         { headers: { "Content-Type": "application/json" } }
       );
       return res.data;
@@ -43,11 +43,37 @@ export const apiService = {
   // -------------------- DASHBOARD / STATS --------------------
   getDashboardCounts: async () => {
     try {
-      // This hits your backend `/overview` route for admin stats
       const res = await axios.get(`${API_BASE_URL}/users/overview`, { headers: getAuthHeaders() });
       return res.data; // { userCount, productCount, totalRevenue }
     } catch (err) {
       throw new Error(err.response?.data?.message || "Failed to fetch dashboard counts");
+    }
+  },
+
+  getUserCount: async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/users/overview`, { headers: getAuthHeaders() });
+      return res.data.userCount;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || "Failed to fetch user count");
+    }
+  },
+
+  getProductCount: async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/users/overview`, { headers: getAuthHeaders() });
+      return res.data.productCount;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || "Failed to fetch product count");
+    }
+  },
+
+  getRevenueCount: async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/users/overview`, { headers: getAuthHeaders() });
+      return res.data.totalRevenue;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || "Failed to fetch total revenue");
     }
   },
 
@@ -64,7 +90,7 @@ export const apiService = {
   createProduct: async (productData, isFormData = false) => {
     try {
       const headers = getAuthHeaders();
-      if (isFormData) delete headers["Content-Type"]; // browser sets FormData automatically
+      if (isFormData) delete headers["Content-Type"];
       const res = await axios.post(`${API_BASE_URL}/products`, productData, { headers });
       return res.data;
     } catch (err) {
