@@ -1,19 +1,22 @@
 import axios from "axios";
 
-// ✅ Use your deployed backend by default
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://e-commerce-mern-eevj.onrender.com/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
-// ✅ Helper: Get Auth Headers
+// Helper: Auth headers
 const getAuthHeaders = () => {
-  const user = JSON.parse(localStorage.getItem("userInfo")); // change to "user" if that's your key
-  const token = user?.token;
+  try {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const token = user?.token;
+    if (!token) return { "Content-Type": "application/json" };
 
-  if (!token) return { "Content-Type": "application/json" };
-
-  return {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
+    return {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
+  } catch (err) {
+    console.error("Error reading token:", err);
+    return { "Content-Type": "application/json" };
+  }
 };
 
 export const apiService = {
@@ -49,14 +52,10 @@ export const apiService = {
   },
 
   createProduct: async (productData, isFormData = false) => {
-    try {
-      const headers = getAuthHeaders();
-      if (isFormData) delete headers["Content-Type"]; // Let browser set multipart headers
-      const res = await axios.post(`${API_BASE_URL}/products`, productData, { headers });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to create product");
-    }
+    const headers = getAuthHeaders();
+    if (isFormData) delete headers["Content-Type"]; // let browser handle FormData
+    const res = await axios.post(`${API_BASE_URL}/products`, productData, { headers });
+    return res.data;
   },
 
   updateProduct: async (id, updatedData, isFormData = false) => {
@@ -71,12 +70,8 @@ export const apiService = {
   },
 
   deleteProduct: async (id) => {
-    try {
-      const res = await axios.delete(`${API_BASE_URL}/products/${id}`, { headers: getAuthHeaders() });
-      return res.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to delete product");
-    }
+    const res = await axios.delete(`${API_BASE_URL}/products/${id}`, { headers: getAuthHeaders() });
+    return res.data;
   },
 
   // -------------------- ORDERS --------------------
