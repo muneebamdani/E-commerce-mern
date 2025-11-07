@@ -22,38 +22,38 @@ export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
-    setIsLoading(true)
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setIsLoading(true);
 
-    try {
-      const data = await apiService.signin({ email, password })
+  try {
+    const data = await apiService.signin({ email, password });
 
-      // ✅ Store JWT token for authenticated requests
-      localStorage.setItem("jwt_token", data.token || data.jwt)
-
-      // ✅ Save user to context (and optionally localStorage)
-      login({
-  ...data.user,   // all user info
-  token: data.token || data.jwt  // include JWT token
-})
-
-
-      // ✅ Navigate based on user role
-      const role = (data.user.role || "").toLowerCase()
-      if (role === "admin") {
-        navigate("/admin")
-      } else {
-        navigate("/")
-      }
-    } catch (error) {
-      console.error("Login error:", error)
-      setError(error.message || "Login failed")
-    } finally {
-      setIsLoading(false)
+    if (!data.token) {
+      throw new Error("No token returned from server");
     }
+
+    // Save token in localStorage
+    localStorage.setItem("jwt_token", data.token);
+
+    // Save user to context
+    login({
+      ...data.user,
+      token: data.token,
+    });
+
+    // Redirect by role
+    const role = (data.user?.role || "").toLowerCase();
+    navigate(role === "admin" ? "/admin" : "/");
+  } catch (error) {
+    console.error("Login error:", error);
+    setError(error.message || "Login failed");
+  } finally {
+    setIsLoading(false);
   }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
