@@ -1,11 +1,15 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+// ✅ Use your deployed backend by default
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://e-commerce-mern-eevj.onrender.com/api";
 
-// Helper: Auth headers
+// ✅ Helper: Get Auth Headers
 const getAuthHeaders = () => {
-  const token = localStorage.getItem("jwt_token");
+  const user = JSON.parse(localStorage.getItem("userInfo")); // change to "user" if that's your key
+  const token = user?.token;
+
   if (!token) return { "Content-Type": "application/json" };
+
   return {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
@@ -16,14 +20,14 @@ export const apiService = {
   // -------------------- AUTH --------------------
   signin: async ({ email, password }) => {
     const res = await axios.post(`${API_BASE_URL}/login`, { email, password }, {
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
     });
     return res.data;
   },
 
   signup: async (name, email, mobile, password, address) => {
     const res = await axios.post(`${API_BASE_URL}/register`, { name, email, mobile, password, address }, {
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
     });
     return res.data;
   },
@@ -32,7 +36,7 @@ export const apiService = {
   getDashboardCounts: async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/users/overview`, { headers: getAuthHeaders() });
-      return res.data; // { totalUsers, totalProducts, totalRevenue }
+      return res.data;
     } catch (err) {
       throw new Error(err.response?.data?.message || "Failed to fetch dashboard counts");
     }
@@ -45,10 +49,14 @@ export const apiService = {
   },
 
   createProduct: async (productData, isFormData = false) => {
-    const headers = getAuthHeaders();
-    if (isFormData) delete headers["Content-Type"]; // browser sets FormData automatically
-    const res = await axios.post(`${API_BASE_URL}/products`, productData, { headers });
-    return res.data;
+    try {
+      const headers = getAuthHeaders();
+      if (isFormData) delete headers["Content-Type"]; // Let browser set multipart headers
+      const res = await axios.post(`${API_BASE_URL}/products`, productData, { headers });
+      return res.data;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || "Failed to create product");
+    }
   },
 
   updateProduct: async (id, updatedData, isFormData = false) => {
@@ -63,8 +71,12 @@ export const apiService = {
   },
 
   deleteProduct: async (id) => {
-    const res = await axios.delete(`${API_BASE_URL}/products/${id}`, { headers: getAuthHeaders() });
-    return res.data;
+    try {
+      const res = await axios.delete(`${API_BASE_URL}/products/${id}`, { headers: getAuthHeaders() });
+      return res.data;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || "Failed to delete product");
+    }
   },
 
   // -------------------- ORDERS --------------------
