@@ -4,20 +4,17 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000
 
 // Helper: Auth headers
 const getAuthHeaders = () => {
-  try {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const token = user?.token;
-    if (!token) return { "Content-Type": "application/json" };
+  const user = JSON.parse(localStorage.getItem("user"));
+  const token = user?.token || localStorage.getItem("jwt_token");
 
-    return {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    };
-  } catch (err) {
-    console.error("Error reading token:", err);
-    return { "Content-Type": "application/json" };
-  }
+  if (!token) return { "Content-Type": "application/json" };
+
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
 };
+
 
 export const apiService = {
   // -------------------- AUTH --------------------
