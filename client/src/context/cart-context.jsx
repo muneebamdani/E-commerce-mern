@@ -4,7 +4,6 @@ import { createContext, useContext, useState, useEffect } from "react"
 
 const CartContext = createContext(null)
 
-
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([])
 
@@ -21,33 +20,65 @@ export function CartProvider({ children }) {
     localStorage.setItem("cart", JSON.stringify(cartItems))
   }, [cartItems])
 
+  // Add product to cart
   const addToCart = (product) => {
     setCartItems((prev) => {
-      const existingItem = prev.find((item) => item.id === product.id)
-      if (existingItem) {
-        return prev.map((item) => (item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item))
+      // Check if same product with same size & color exists
+      const existingIndex = prev.findIndex(
+        (item) =>
+          item.id === product.id &&
+          item.size === (product.size || "") &&
+          item.color === (product.color || "")
+      )
+
+      if (existingIndex !== -1) {
+        // Increment quantity if same product + same options
+        const updated = [...prev]
+        updated[existingIndex].quantity += 1
+        return updated
       }
+
+      // Otherwise, add as new item
       return [...prev, { ...product, quantity: 1 }]
     })
   }
 
-  const removeFromCart = (productId) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== productId))
+  // Remove product from cart
+  const removeFromCart = (product) => {
+    setCartItems((prev) =>
+      prev.filter(
+        (item) =>
+          item.id !== product.id ||
+          item.size !== (product.size || "") ||
+          item.color !== (product.color || "")
+      )
+    )
   }
 
-  const updateQuantity = (productId, quantity) => {
+  // Update quantity of a product
+  const updateQuantity = (product, quantity) => {
     if (quantity <= 0) {
-      removeFromCart(productId)
+      removeFromCart(product)
       return
     }
 
-    setCartItems((prev) => prev.map((item) => (item.id === productId ? { ...item, quantity } : item)))
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.id === product.id &&
+        item.size === (product.size || "") &&
+        item.color === (product.color || "")
+          ? { ...item, quantity }
+          : item
+      )
+    )
   }
 
+  // Get total price of cart
   const getTotalPrice = () => {
     return cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
   }
 
+  // Clear entire cart
   const clearCart = () => {
     setCartItems([])
   }
@@ -68,6 +99,7 @@ export function CartProvider({ children }) {
   )
 }
 
+// Hook to use cart context
 export function useCart() {
   const context = useContext(CartContext)
   if (context === undefined) {

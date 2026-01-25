@@ -14,6 +14,12 @@ const orderItemSchema = new mongoose.Schema({
   price: {
     type: Number,
     required: true
+  },
+  size: {           // ✅ Added for Night Suits
+    type: String
+  },
+  color: {          // ✅ Added for Night Suits
+    type: String
   }
 });
 
@@ -47,10 +53,9 @@ const orderSchema = new mongoose.Schema({
     enum: ['unpaid', 'paid'],
     default: 'unpaid'
   },
-shippingAddress: {
-  type: String
-}
-
+  shippingAddress: {
+    type: String
+  }
 }, {
   timestamps: true
 });

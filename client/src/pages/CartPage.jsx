@@ -70,6 +70,8 @@ export default function CartPage() {
       const orderItems = cartItems.map((item) => ({
         product: item.id,
         quantity: item.quantity,
+        size: item.size || null,
+        color: item.color || null,
       }))
 
       const orderData = {
@@ -80,7 +82,7 @@ export default function CartPage() {
         totalAmount: getTotalPrice(),
       }
 
-      const data = await apiService.createOrder(orderData, {
+      await apiService.createOrder(orderData, {
         headers: { Authorization: `Bearer ${user.token}` },
       })
 
@@ -146,37 +148,34 @@ export default function CartPage() {
           </div>
         )}
 
-        {/* ✅ Responsive Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {cartItems.map((item) => (
-              <Card key={item.id}>
+            {cartItems.map((item, index) => (
+              <Card key={index}>
                 <CardContent className="p-4 sm:p-6">
-                  {/* ✅ Responsive Flex */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
                     <div className="relative h-20 w-20 flex-shrink-0 mx-auto sm:mx-0">
-                     <img
-  src={item.image ? item.image : "https://via.placeholder.com/80x80?text=Product"}
-  onError={(e) =>
-    (e.target.src = "https://via.placeholder.com/80x80?text=Product")
-  }
-  alt={item.name}
-  className="w-full h-full object-cover rounded-md"
-/>
-
+                      <img
+                        src={item.image || "https://via.placeholder.com/80x80?text=Product"}
+                        alt={item.name}
+                        className="w-full h-full object-cover rounded-md"
+                        onError={(e) => (e.target.src = "https://via.placeholder.com/80x80?text=Product")}
+                      />
                     </div>
 
                     <div className="flex-1 text-center sm:text-left">
                       <h3 className="font-semibold text-lg">{item.name}</h3>
                       <p className="text-gray-600">Rs{item.price.toFixed(2)}</p>
+                      {item.size && <p className="text-gray-500">Size: {item.size}</p>}
+                      {item.color && <p className="text-gray-500">Color: {item.color}</p>}
                     </div>
 
                     <div className="flex justify-center sm:justify-start items-center space-x-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item, item.quantity - 1)}
                         disabled={item.quantity <= 1}
                       >
                         <Minus className="h-4 w-4" />
@@ -185,7 +184,7 @@ export default function CartPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item, item.quantity + 1)}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -198,7 +197,7 @@ export default function CartPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item)}
                         className="text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4" />

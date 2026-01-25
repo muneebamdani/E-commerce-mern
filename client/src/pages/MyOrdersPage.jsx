@@ -69,7 +69,7 @@ export default function MyOrdersPage() {
           <div className="flex justify-between items-center h-16">
             <h1 className="text-2xl font-bold text-gray-900">My Orders</h1>
 
-            {/* 🏠 Back to Home button */}
+            {/* Back to Home */}
             <Link to="/">
               <Button variant="outline" className="flex items-center gap-2">
                 <svg
@@ -114,9 +114,11 @@ export default function MyOrdersPage() {
                 <div>
                   <h4 className="font-medium mb-1">Items:</h4>
                   <ul className="list-disc list-inside text-gray-700">
-                    {order.items.map(({ product, quantity }) => (
+                    {order.items.map(({ product, quantity, size, color }) => (
                       <li key={product._id}>
                         {product.name} x {quantity}
+                        {size && <span className="ml-2 text-sm text-gray-500">| Size: {size}</span>}
+                        {color && <span className="ml-2 text-sm text-gray-500">| Color: {color}</span>}
                       </li>
                     ))}
                   </ul>

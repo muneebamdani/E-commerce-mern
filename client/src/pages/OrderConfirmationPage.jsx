@@ -39,9 +39,6 @@ export default function AdminOrdersPage() {
 
         const data = await res.json()
         setOrders(data)
-
-        // ✅ Redirect example (you can remove if not needed)
-        // navigate("/my-orders")
       } catch (err) {
         setError("Network error while fetching orders.")
       } finally {
@@ -79,7 +76,6 @@ export default function AdminOrdersPage() {
             <Link to="/" className="text-2xl font-bold text-gray-900">
               Admin Panel - Orders
             </Link>
-            {/* ✅ Optional button to go to My Orders */}
             <Button onClick={() => navigate("/my-orders")}>Go to My Orders</Button>
           </div>
         </div>
@@ -117,9 +113,11 @@ export default function AdminOrdersPage() {
                 <div>
                   <h4 className="font-medium mb-1">Items:</h4>
                   <ul className="list-disc list-inside text-gray-700">
-                    {order.items.map(({ product, quantity }) => (
+                    {order.items.map(({ product, quantity, size, color }) => (
                       <li key={product._id}>
                         {product.name} x {quantity}
+                        {size && <span className="ml-2 text-sm text-gray-500">| Size: {size}</span>}
+                        {color && <span className="ml-2 text-sm text-gray-500">| Color: {color}</span>}
                       </li>
                     ))}
                   </ul>

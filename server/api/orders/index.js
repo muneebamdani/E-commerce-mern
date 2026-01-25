@@ -47,6 +47,8 @@ router.post("/", verifyToken, async (req, res) => {
         product: product._id,
         quantity: item.quantity,
         price: product.price,
+        size: item.size || null,   // ✅ include size
+        color: item.color || null, // ✅ include color
       });
 
       product.stock -= item.quantity;
@@ -59,7 +61,7 @@ router.post("/", verifyToken, async (req, res) => {
       userMobile: user.mobile,
       items: orderItems,
       totalAmount,
-      shippingAddress: user.address,
+      shippingAddress: shippingAddress || user.address,
     });
 
     await order.save();
@@ -156,7 +158,6 @@ router.put("/:orderId/status", verifyToken, requireAdmin, async (req, res) => {
 });
 
 /* ------------------------- DASHBOARD COUNT ROUTE ------------------------- */
-
 router.get("/dashboard-counts", verifyToken, requireAdmin, async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();

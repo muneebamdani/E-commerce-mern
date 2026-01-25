@@ -21,7 +21,6 @@ export default function AdminOrders() {
       navigate("/")
       return
     }
-
     fetchOrders()
   }, [user, navigate])
 
@@ -36,20 +35,19 @@ export default function AdminOrders() {
     }
   }
 
- const handleStatusUpdate = async (orderId, newStatus) => {
-  try {
-    const updatedOrder = await apiService.updateOrderStatus(orderId, newStatus)
-    setOrders((prevOrders) =>
-      prevOrders.map((order) =>
-        order._id === updatedOrder.order._id ? { ...order, status: updatedOrder.order.status } : order
+  const handleStatusUpdate = async (orderId, newStatus) => {
+    try {
+      const updatedOrder = await apiService.updateOrderStatus(orderId, newStatus)
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order._id === updatedOrder.order._id ? { ...order, status: updatedOrder.order.status } : order
+        )
       )
-    )
-  } catch (error) {
-    console.error("Failed to update order status:", error)
-    alert("Failed to update order status")
+    } catch (error) {
+      console.error("Failed to update order status:", error)
+      alert("Failed to update order status")
+    }
   }
-}
-
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -147,11 +145,7 @@ export default function AdminOrders() {
                       <div className="text-sm text-gray-600 mt-1 space-y-1">
                         <p>Customer: {order.userName} ({order.userMobile})</p>
                         <p>Order Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-                        {order.shippingAddress && (
-                          <p>
-                            Delivery Address: {order.shippingAddress}
-                          </p>
-                        )}
+                        {order.shippingAddress && <p>Delivery Address: {order.shippingAddress}</p>}
                       </div>
                     </div>
                     <div className="text-right">
@@ -170,7 +164,11 @@ export default function AdminOrders() {
                       <div className="space-y-2">
                         {order.items.map((item, index) => (
                           <div key={index} className="flex justify-between items-center text-sm">
-                            <span>{item.product.name} x {item.quantity}</span>
+                            <span>
+                              {item.product.name} x {item.quantity}{" "}
+                              {item.size && <>(Size: {item.size})</>}{" "}
+                              {item.color && <>(Color: {item.color})</>}
+                            </span>
                             <span>Rs{(item.price * item.quantity).toFixed(2)}</span>
                           </div>
                         ))}
