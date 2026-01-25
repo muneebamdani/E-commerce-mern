@@ -18,6 +18,12 @@ export default function HomePage() {
   const [error, setError] = useState("")
   const [menuOpen, setMenuOpen] = useState(false)
 
+  // ✅ Category State (Default = Accessories)
+  const [selectedCategory, setSelectedCategory] = useState("Accessories")
+
+  // ✅ Categories List (No "All")
+  const categories = ["Accessories", "Clothing", "Bags", "Shoes"]
+
   useEffect(() => {
     fetchProducts()
   }, [])
@@ -33,6 +39,12 @@ export default function HomePage() {
       setIsLoading(false)
     }
   }
+
+  // ✅ Filter Products by Selected Category
+  const filteredProducts = products.filter(
+    (product) =>
+      product.category?.toLowerCase() === selectedCategory.toLowerCase()
+  )
 
   const handleAddToCart = (product) => {
     addToCart({
@@ -51,7 +63,6 @@ export default function HomePage() {
     }).format(amount)
   }
 
-  // ✅ Calculate total quantity for cart icon
   const totalCartQuantity = cartItems.reduce(
     (total, item) => total + (item.quantity || 1),
     0
@@ -59,7 +70,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* ✅ Navigation */}
+
+      {/* ================= MAIN NAVBAR ================= */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -74,15 +86,11 @@ export default function HomePage() {
                   <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
                   {user.role === "admin" && (
                     <Link to="/admin">
-                      <Button variant="ghost" size="sm">
-                        Admin Panel
-                      </Button>
+                      <Button variant="ghost" size="sm">Admin Panel</Button>
                     </Link>
                   )}
                   <Link to="/my-orders">
-                    <Button variant="ghost" size="sm">
-                      My Orders
-                    </Button>
+                    <Button variant="ghost" size="sm">My Orders</Button>
                   </Link>
                   <Button variant="ghost" size="sm" onClick={logout}>
                     Logout
@@ -91,8 +99,7 @@ export default function HomePage() {
               ) : (
                 <Link to="/login">
                   <Button variant="ghost" size="sm">
-                    <User className="h-4 w-4 mr-2" />
-                    Login
+                    <User className="h-4 w-4 mr-2" /> Login
                   </Button>
                 </Link>
               )}
@@ -118,63 +125,30 @@ export default function HomePage() {
             </button>
           </div>
         </div>
-
-        {/* Mobile Dropdown Menu */}
-        {menuOpen && (
-          <div className="md:hidden border-t bg-white">
-            <div className="px-4 py-3 space-y-3">
-              {user ? (
-                <>
-                  <span className="block text-sm text-gray-600">Welcome, {user.name}!</span>
-                  {user.role === "admin" && (
-                    <Link to="/admin" onClick={() => setMenuOpen(false)}>
-                      <Button variant="ghost" size="sm" className="w-full text-left">
-                        Admin Panel
-                      </Button>
-                    </Link>
-                  )}
-                  <Link to="/my-orders" onClick={() => setMenuOpen(false)}>
-                    <Button variant="ghost" size="sm" className="w-full text-left">
-                      My Orders
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      logout()
-                      setMenuOpen(false)
-                    }}
-                    className="w-full text-left"
-                  >
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <Link to="/login" onClick={() => setMenuOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full text-left">
-                    <User className="h-4 w-4 mr-2 inline" />
-                    Login
-                  </Button>
-                </Link>
-              )}
-              <Link to="/cart" onClick={() => setMenuOpen(false)}>
-                <Button variant="outline" size="sm" className="w-full relative bg-transparent">
-                  <ShoppingCart className="h-4 w-4 mr-2 inline" />
-                  Cart
-                  {totalCartQuantity > 0 && (
-                    <span className="absolute top-1 right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {totalCartQuantity}
-                    </span>
-                  )}
-                </Button>
-              </Link>
-            </div>
-          </div>
-        )}
       </nav>
 
-      {/* ✅ Hero Section */}
+      {/* ================= CATEGORY NAVBAR ================= */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex gap-4 overflow-x-auto py-3">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${
+                  selectedCategory === cat
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ================= HERO ================= */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
@@ -186,89 +160,47 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ✅ Products Section */}
+      {/* ================= PRODUCTS ================= */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
           Featured Products
         </h2>
 
         {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p>Loading products...</p>
-          </div>
+          <div className="text-center py-12">Loading products...</div>
         ) : error ? (
+          <div className="text-center py-12 text-red-600">{error}</div>
+        ) : filteredProducts.length === 0 ? (
           <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-red-600 mb-2">Error</h3>
-            <p className="text-gray-600">{error}</p>
-          </div>
-        ) : products.length === 0 ? (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No products available</h3>
-            <p className="text-gray-600">Check back later for new products!</p>
+            No products found in {selectedCategory}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => {
+            {filteredProducts.map((product) => {
               const cartItem = cartItems.find((item) => item.id === product._id)
               const quantity = cartItem ? cartItem.quantity : 0
 
               return (
-                <Card
-                  key={product._id}
-                  className="overflow-hidden hover:shadow-lg transition-shadow"
-                >
+                <Card key={product._id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-square relative">
-                   <img
-  src={product.image ? product.image : "https://via.placeholder.com/300x300?text=Product"}
-  alt={product.name}
-  className="w-full h-full object-cover"
-/>
-
-                    {product.stock === 0 && (
-                      <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
-                        Out of Stock
-                      </span>
-                    )}
+                    <img
+                      src={product.image || "https://via.placeholder.com/300"}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
+
                   <CardContent className="p-4">
                     <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
                     <p className="text-2xl font-bold text-blue-600">
                       {formatCurrency(product.price)}
                     </p>
-                    {product.description && (
-                      <p className="text-gray-600 text-sm mt-2 line-clamp-2">
-                        {product.description}
-                      </p>
-                    )}
-                    {product.stock !== undefined && (
-                      <p className="text-sm text-gray-500 mt-1">Stock: {product.stock}</p>
-                    )}
                   </CardContent>
 
-                  <CardFooter className="p-4 pt-0 flex items-center justify-between">
-                   <Button
-  onClick={() => handleAddToCart(product)}
-  className="w-full"
-  disabled={product.stock === 0}
->
-  {product.stock === 0
-    ? "Out of Stock"
-    : (() => {
-        const itemInCart = cartItems.find((item) => item.id === product._id)
-        return itemInCart
-          ? `Added (${itemInCart.quantity})`
-          : "Add to Cart"
-      })()}
-</Button>
-
-
-                    {/* 🟢 Quantity Badge */}
-                    {quantity > 0 && (
-                      <span className="ml-3 bg-blue-600 text-white text-sm rounded-full h-6 w-6 flex items-center justify-center">
-                        {quantity}
-                      </span>
-                    )}
+                  <CardFooter className="p-4 pt-0">
+                    <Button onClick={() => handleAddToCart(product)} className="w-full">
+                      {quantity > 0 ? `Added (${quantity})` : "Add to Cart"}
+                    </Button>
                   </CardFooter>
                 </Card>
               )
@@ -277,7 +209,6 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* ✅ Footer */}
       <Footer />
     </div>
   )
