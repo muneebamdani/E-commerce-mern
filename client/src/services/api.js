@@ -15,7 +15,6 @@ const getAuthHeaders = () => {
   };
 };
 
-
 export const apiService = {
   // -------------------- AUTH --------------------
   signin: async ({ email, password }) => {
@@ -74,6 +73,12 @@ export const apiService = {
   // -------------------- ORDERS --------------------
   getOrders: async () => {
     const res = await axios.get(`${API_BASE_URL}/orders`, { headers: getAuthHeaders() });
+    return res.data;
+  },
+
+  createOrder: async (orderData) => {
+    // ✅ Added function to place order
+    const res = await axios.post(`${API_BASE_URL}/orders`, orderData, { headers: getAuthHeaders() });
     return res.data;
   },
 
