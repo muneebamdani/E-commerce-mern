@@ -79,59 +79,107 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ================= MAIN NAVBAR ================= */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-gray-900">
-              Tatheer Fatima Collection
-            </Link>
+     {/* ================= MAIN NAVBAR ================= */}
+<nav className="bg-white shadow-sm border-b">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex justify-between items-center h-16">
+      <Link to="/" className="text-2xl font-bold text-gray-900">
+        Tatheer Fatima Collection
+      </Link>
 
-            <div className="hidden md:flex items-center space-x-4">
-              {user ? (
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
-                  {user.role === "admin" && (
-                    <Link to="/admin">
-                      <Button variant="ghost" size="sm">Admin Panel</Button>
-                    </Link>
-                  )}
-                  <Link to="/my-orders">
-                    <Button variant="ghost" size="sm">My Orders</Button>
-                  </Link>
-                  <Button variant="ghost" size="sm" onClick={logout}>
-                    Logout
-                  </Button>
-                </div>
-              ) : (
-                <Link to="/login">
-                  <Button variant="ghost" size="sm">
-                    <User className="h-4 w-4 mr-2" /> Login
-                  </Button>
-                </Link>
-              )}
-              <Link to="/cart">
-                <Button variant="outline" size="sm" className="relative bg-transparent">
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  Cart
-                  {totalCartQuantity > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {totalCartQuantity}
-                    </span>
-                  )}
+      {/* Desktop Menu */}
+      <div className="hidden md:flex items-center space-x-4">
+        {user ? (
+          <div className="flex items-center space-x-4">
+            <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
+            {user.role === "admin" && (
+              <Link to="/admin">
+                <Button variant="ghost" size="sm">Admin Panel</Button>
+              </Link>
+            )}
+            <Link to="/my-orders">
+              <Button variant="ghost" size="sm">My Orders</Button>
+            </Link>
+            <Button variant="ghost" size="sm" onClick={logout}>
+              Logout
+            </Button>
+          </div>
+        ) : (
+          <Link to="/login">
+            <Button variant="ghost" size="sm">
+              <User className="h-4 w-4 mr-2" /> Login
+            </Button>
+          </Link>
+        )}
+        <Link to="/cart">
+          <Button variant="outline" size="sm" className="relative bg-transparent">
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Cart
+            {totalCartQuantity > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {totalCartQuantity}
+              </span>
+            )}
+          </Button>
+        </Link>
+      </div>
+
+      {/* Mobile Menu Toggle */}
+      <button
+        className="md:hidden p-2 rounded hover:bg-gray-100"
+        onClick={() => setMenuOpen(!menuOpen)}
+      >
+        {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+      </button>
+    </div>
+  </div>
+
+  {/* Mobile Menu */}
+  {menuOpen && (
+    <div className="md:hidden bg-white border-t shadow-sm">
+      <div className="px-4 py-4 space-y-2">
+        {user ? (
+          <>
+            <p className="text-sm text-gray-600">Welcome, {user.name}!</p>
+            {user.role === "admin" && (
+              <Link to="/admin">
+                <Button variant="ghost" size="sm" className="w-full text-left">
+                  Admin Panel
                 </Button>
               </Link>
-            </div>
+            )}
+            <Link to="/my-orders">
+              <Button variant="ghost" size="sm" className="w-full text-left">
+                My Orders
+              </Button>
+            </Link>
+            <Button variant="ghost" size="sm" className="w-full text-left" onClick={logout}>
+              Logout
+            </Button>
+          </>
+        ) : (
+          <Link to="/login">
+            <Button variant="ghost" size="sm" className="w-full text-left">
+              <User className="h-4 w-4 mr-2" /> Login
+            </Button>
+          </Link>
+        )}
+        <Link to="/cart">
+          <Button variant="outline" size="sm" className="w-full text-left relative bg-transparent">
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Cart
+            {totalCartQuantity > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {totalCartQuantity}
+              </span>
+            )}
+          </Button>
+        </Link>
+      </div>
+    </div>
+  )}
+</nav>
 
-            {/* Mobile Menu Toggle */}
-            <button
-              className="md:hidden p-2 rounded hover:bg-gray-100"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
-        </div>
-      </nav>
 
       {/* ================= CATEGORY NAVBAR ================= */}
       <div className="bg-white border-b">
