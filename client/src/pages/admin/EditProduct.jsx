@@ -23,7 +23,7 @@ export default function EditProduct() {
     price: "",
     image: "",
     description: "",
-    category: "",
+    category: "Accessories", // ✅ default category
     stock: "",
   })
   const [imageFile, setImageFile] = useState(null)
@@ -46,7 +46,7 @@ export default function EditProduct() {
           price: product.price,
           image: product.image,
           description: product.description,
-          category: product.category,
+          category: product.category || "Accessories", // ✅ fallback
           stock: product.stock,
         })
       } else {
@@ -146,9 +146,23 @@ export default function EditProduct() {
                 <Input id="imageFile" type="file" accept="image/*" onChange={e => setImageFile(e.target.files[0])} />
               </div>
 
+              {/* ✅ Updated Category Dropdown */}
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Input name="category" value={formData.category} onChange={handleChange} />
+                <Label htmlFor="category">Category *</Label>
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="border p-2 rounded w-full"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  <option value="Accessories">Accessories</option>
+                  <option value="Clothing">Clothing</option>
+                  <option value="Night Suits">Night Suits</option>
+                  <option value="Watches">Watches</option>
+                </select>
               </div>
 
               <div className="space-y-2">

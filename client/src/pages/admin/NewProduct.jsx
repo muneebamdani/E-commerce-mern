@@ -20,7 +20,7 @@ export default function NewProduct() {
     name: "",
     price: "",
     description: "",
-    category: "",
+    category: "Accessories", // ✅ default category
     stock: "",
   })
   const [imageFile, setImageFile] = useState(null)
@@ -156,16 +156,23 @@ export default function NewProduct() {
                 />
               </div>
 
+              {/* ✅ Updated Category Dropdown */}
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Input
+                <Label htmlFor="category">Category *</Label>
+                <select
                   id="category"
                   name="category"
-                  type="text"
-                  placeholder="Electronics, Clothing, etc."
                   value={formData.category}
                   onChange={handleChange}
-                />
+                  className="border p-2 rounded w-full"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  <option value="Accessories">Accessories</option>
+                  <option value="Clothing">Clothing</option>
+                  <option value="Night Suits">Night Suits</option>
+                  <option value="Watches">Watches</option>
+                </select>
               </div>
 
               <div className="space-y-2">

@@ -22,7 +22,7 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("Accessories")
 
   // ✅ Categories List (No "All")
-  const categories = ["Accessories", "Clothing", "Bags", "Shoes"]
+  const categories = ["Accessories", "Clothing", "Night Suits", "Watches"]
 
   useEffect(() => {
     fetchProducts()

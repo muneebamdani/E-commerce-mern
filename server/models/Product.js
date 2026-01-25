@@ -19,8 +19,11 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  // ✅ Updated Category Field
   category: {
     type: String,
+    enum: ["Accessories", "Clothing", "Night Suits", "Watches"], // only allowed categories
+    default: "Accessories", // old products automatically fall here
     required: true
   },
   stock: {
