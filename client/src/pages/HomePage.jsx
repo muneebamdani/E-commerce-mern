@@ -18,10 +18,10 @@ export default function HomePage() {
   const [error, setError] = useState("")
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // ✅ Category State (Default = Accessories)
+  // Category State
   const [selectedCategory, setSelectedCategory] = useState("Accessories")
 
-  // ✅ Categories List (No "All")
+  // Categories List
   const categories = ["Accessories", "Clothing", "Night Suits", "Watches"]
 
   useEffect(() => {
@@ -40,20 +40,10 @@ export default function HomePage() {
     }
   }
 
-  // ✅ Filter Products by Selected Category
+  // Filter products by selected category
   const filteredProducts = products.filter(
-    (product) =>
-      product.category?.toLowerCase() === selectedCategory.toLowerCase()
+    (product) => product.category?.toLowerCase() === selectedCategory.toLowerCase()
   )
-
-  const handleAddToCart = (product) => {
-    addToCart({
-      id: product._id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-    })
-  }
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-PK", {
@@ -79,7 +69,6 @@ export default function HomePage() {
               Tatheer Fatima Collection
             </Link>
 
-            {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-4">
@@ -180,6 +169,26 @@ export default function HomePage() {
               const cartItem = cartItems.find((item) => item.id === product._id)
               const quantity = cartItem ? cartItem.quantity : 0
 
+              // Night Suits: user can select size & color
+              const isNightSuit = product.category === "Night Suits"
+              const [selectedSize, setSelectedSize] = useState(isNightSuit ? product.sizes[0] || "" : "")
+              const [selectedColor, setSelectedColor] = useState(isNightSuit ? product.colors[0] || "" : "")
+
+              const handleAddToCart = () => {
+                if (isNightSuit && (!selectedSize || !selectedColor)) {
+                  alert("Please select size and color")
+                  return
+                }
+                addToCart({
+                  id: product._id,
+                  name: product.name,
+                  price: product.price,
+                  image: product.image,
+                  size: selectedSize,
+                  color: selectedColor
+                })
+              }
+
               return (
                 <Card key={product._id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-square relative">
@@ -192,13 +201,28 @@ export default function HomePage() {
 
                   <CardContent className="p-4">
                     <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {formatCurrency(product.price)}
-                    </p>
+                    <p className="text-2xl font-bold text-blue-600">{formatCurrency(product.price)}</p>
+
+                    {isNightSuit && (
+                      <div className="space-y-2 mt-2">
+                        <div>
+                          <Label>Size</Label>
+                          <select value={selectedSize} onChange={e => setSelectedSize(e.target.value)} className="border p-1 rounded w-full">
+                            {product.sizes.map((s) => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <Label>Color</Label>
+                          <select value={selectedColor} onChange={e => setSelectedColor(e.target.value)} className="border p-1 rounded w-full">
+                            {product.colors.map((c) => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
 
                   <CardFooter className="p-4 pt-0">
-                    <Button onClick={() => handleAddToCart(product)} className="w-full">
+                    <Button onClick={handleAddToCart} className="w-full">
                       {quantity > 0 ? `Added (${quantity})` : "Add to Cart"}
                     </Button>
                   </CardFooter>

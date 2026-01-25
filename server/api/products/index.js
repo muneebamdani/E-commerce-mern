@@ -50,10 +50,19 @@ router.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      const { name, description, price, stock, category } = req.body;
+      const { name, description, price, stock, category, size, colors } = req.body;
 
       if (!name || !price) {
         return res.status(400).json({ error: "Product name and price are required" });
+      }
+
+      // ✅ Night Suits validation
+      let colorsArray = [];
+      if (category === "Night Suits") {
+        if (!size || !colors) {
+          return res.status(400).json({ error: "Night Suits must have size and colors" });
+        }
+        colorsArray = colors.split(",").map(c => c.trim());
       }
 
       // Upload image to Cloudinary if provided
@@ -70,6 +79,8 @@ router.post(
         stock: Number(stock) || 100,
         category: category || "",
         image,
+        size: size || undefined,
+        colors: colorsArray.length > 0 ? colorsArray : undefined,
       });
 
       await newProduct.save();
@@ -97,7 +108,16 @@ router.delete("/:id", verifyToken, requireAdmin, async (req, res) => {
 // -------------------- UPDATE product --------------------
 router.put("/:id", verifyToken, requireAdmin, upload.single("image"), async (req, res) => {
   try {
-    const { price, ...rest } = req.body;
+    const { price, size, colors, category, ...rest } = req.body;
+
+    // ✅ Night Suits validation
+    let colorsArray = [];
+    if (category === "Night Suits") {
+      if (!size || !colors) {
+        return res.status(400).json({ error: "Night Suits must have size and colors" });
+      }
+      colorsArray = colors.split(",").map(c => c.trim());
+    }
 
     // Upload new image if provided
     if (req.file) {
@@ -109,6 +129,8 @@ router.put("/:id", verifyToken, requireAdmin, upload.single("image"), async (req
       req.params.id,
       {
         ...rest,
+        size: size || undefined,
+        colors: colorsArray.length > 0 ? colorsArray : undefined,
         ...(price !== undefined && { price: Math.round(Number(price)) }),
       },
       { new: true }

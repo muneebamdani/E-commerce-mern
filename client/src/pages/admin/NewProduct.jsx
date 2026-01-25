@@ -20,19 +20,30 @@ export default function NewProduct() {
     name: "",
     price: "",
     description: "",
-    category: "Accessories", // ✅ default category
+    category: "Accessories",
     stock: "",
+    sizes: [],
+    colors: [],
   })
   const [imageFile, setImageFile] = useState(null)
 
-  // Protect route
   useEffect(() => {
-    if (user && user.role !== "admin") {
-      navigate("/")
-    }
+    if (user && user.role !== "admin") navigate("/")
   }, [user])
 
   if (!user) return <div className="p-4 text-gray-600">Loading...</div>
+
+  const handleChange = (e) => setFormData({...formData, [e.target.name]: e.target.value})
+
+  const handleSizeChange = (e) => {
+    const value = Array.from(e.target.selectedOptions, option => option.value)
+    setFormData({...formData, sizes: value})
+  }
+
+  const handleColorsChange = (e) => {
+    const colors = e.target.value.split(",").map(c => c.trim()).filter(Boolean)
+    setFormData({...formData, colors})
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -42,51 +53,31 @@ export default function NewProduct() {
     try {
       const data = new FormData()
       data.append("name", formData.name)
-      data.append("price", parseFloat(formData.price))
-      data.append("stock", parseInt(formData.stock) || 100)
+      data.append("price", Number(formData.price))
+      data.append("stock", Number(formData.stock) || 100)
       data.append("description", formData.description)
       data.append("category", formData.category)
+      if (formData.category === "Night Suits") {
+        formData.sizes.forEach(size => data.append("sizes[]", size))
+        formData.colors.forEach(color => data.append("colors[]", color))
+      }
       if (imageFile) data.append("image", imageFile)
 
-      await apiService.createProduct(data, true) // second param = isFormData
+      await apiService.createProduct(data, true)
       navigate("/admin/products")
     } catch (err) {
-      setError(err.message)
+      setError(err.message || "Failed to create product")
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-gray-900">Tatheer Fatima Collection Admin</Link>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
-              <Link to="/">
-                <Button variant="outline" size="sm">View Store</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex items-center space-x-4 mb-8">
           <Link to="/admin/products">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Products
-            </Button>
+            <Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4 mr-2"/>Back to Products</Button>
           </Link>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Add New Product</h1>
@@ -95,78 +86,35 @@ export default function NewProduct() {
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Product Information</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Product Information</CardTitle></CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">{error}</div>
-              )}
+              {error && <div className="text-red-600">{error}</div>}
 
               <div className="space-y-2">
-                <Label htmlFor="name">Product Name *</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="Enter product name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
+                <Label>Product Name *</Label>
+                <Input name="name" value={formData.name} onChange={handleChange} required/>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price *</Label>
-                  <Input
-                    id="price"
-                    name="price"
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={formData.price}
-                    onChange={handleChange}
-                    required
-                  />
+                  <Label>Price *</Label>
+                  <Input name="price" type="number" step="0.01" value={formData.price} onChange={handleChange} required/>
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="stock">Stock Quantity</Label>
-                  <Input
-                    id="stock"
-                    name="stock"
-                    type="number"
-                    placeholder="100"
-                    value={formData.stock}
-                    onChange={handleChange}
-                  />
+                  <Label>Stock</Label>
+                  <Input name="stock" type="number" value={formData.stock} onChange={handleChange}/>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image">Upload Image</Label>
-                <Input
-                  id="image"
-                  name="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files[0])}
-                />
+                <Label>Upload Image</Label>
+                <Input type="file" accept="image/*" onChange={e=>setImageFile(e.target.files[0])}/>
               </div>
 
-              {/* ✅ Updated Category Dropdown */}
               <div className="space-y-2">
-                <Label htmlFor="category">Category *</Label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="border p-2 rounded w-full"
-                  required
-                >
+                <Label>Category *</Label>
+                <select name="category" value={formData.category} onChange={handleChange} className="border p-2 rounded w-full" required>
                   <option value="">Select Category</option>
                   <option value="Accessories">Accessories</option>
                   <option value="Clothing">Clothing</option>
@@ -175,25 +123,35 @@ export default function NewProduct() {
                 </select>
               </div>
 
+              {/* Night Suits Sizes */}
+              {formData.category === "Night Suits" && (
+                <>
+                  <div className="space-y-2">
+                    <Label>Sizes *</Label>
+                    <select multiple value={formData.sizes} onChange={handleSizeChange} className="border p-2 rounded w-full">
+                      <option value="Medium">Medium</option>
+                      <option value="Large">Large</option>
+                      <option value="Extra Large">Extra Large</option>
+                    </select>
+                    <p className="text-sm text-gray-500">Hold Ctrl/Cmd to select multiple sizes.</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Colors *</Label>
+                    <Input placeholder="Red, Blue, Green" value={formData.colors.join(", ")} onChange={handleColorsChange}/>
+                    <p className="text-sm text-gray-500">Enter colors separated by commas.</p>
+                  </div>
+                </>
+              )}
+
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  placeholder="Enter product description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows={4}
-                />
+                <Label>Description</Label>
+                <Textarea name="description" value={formData.description} onChange={handleChange} rows={4}/>
               </div>
 
               <div className="flex space-x-4">
-                <Button type="submit" disabled={isLoading} className="flex-1">
-                  {isLoading ? "Creating..." : "Create Product"}
-                </Button>
-                <Link to="/admin/products">
-                  <Button type="button" variant="outline">Cancel</Button>
-                </Link>
+                <Button type="submit" disabled={isLoading} className="flex-1">{isLoading ? "Creating..." : "Create Product"}</Button>
+                <Link to="/admin/products"><Button type="button" variant="outline" className="flex-1">Cancel</Button></Link>
               </div>
             </form>
           </CardContent>
