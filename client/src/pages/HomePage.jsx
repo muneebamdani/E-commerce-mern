@@ -24,6 +24,9 @@ export default function HomePage() {
   // Categories List
   const categories = ["Accessories", "Clothing", "Night Suits", "Watches"]
 
+  // Track selected size/color per product
+  const [selectedOptions, setSelectedOptions] = useState({})
+
   useEffect(() => {
     fetchProducts()
   }, [])
@@ -38,6 +41,21 @@ export default function HomePage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Handlers for Night Suits selections
+  const handleSizeChange = (productId, size) => {
+    setSelectedOptions(prev => ({
+      ...prev,
+      [productId]: { ...prev[productId], size }
+    }))
+  }
+
+  const handleColorChange = (productId, color) => {
+    setSelectedOptions(prev => ({
+      ...prev,
+      [productId]: { ...prev[productId], color }
+    }))
   }
 
   // Filter products by selected category
@@ -60,7 +78,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-
       {/* ================= MAIN NAVBAR ================= */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -169,10 +186,9 @@ export default function HomePage() {
               const cartItem = cartItems.find((item) => item.id === product._id)
               const quantity = cartItem ? cartItem.quantity : 0
 
-              // Night Suits: user can select size & color
               const isNightSuit = product.category === "Night Suits"
-              const [selectedSize, setSelectedSize] = useState(isNightSuit ? product.sizes[0] || "" : "")
-              const [selectedColor, setSelectedColor] = useState(isNightSuit ? product.colors[0] || "" : "")
+              const selectedSize = selectedOptions[product._id]?.size || (isNightSuit ? product.sizes[0] || "" : "")
+              const selectedColor = selectedOptions[product._id]?.color || (isNightSuit ? product.colors[0] || "" : "")
 
               const handleAddToCart = () => {
                 if (isNightSuit && (!selectedSize || !selectedColor)) {
@@ -207,13 +223,21 @@ export default function HomePage() {
                       <div className="space-y-2 mt-2">
                         <div>
                           <Label>Size</Label>
-                          <select value={selectedSize} onChange={e => setSelectedSize(e.target.value)} className="border p-1 rounded w-full">
+                          <select
+                            value={selectedSize}
+                            onChange={e => handleSizeChange(product._id, e.target.value)}
+                            className="border p-1 rounded w-full"
+                          >
                             {product.sizes.map((s) => <option key={s} value={s}>{s}</option>)}
                           </select>
                         </div>
                         <div>
                           <Label>Color</Label>
-                          <select value={selectedColor} onChange={e => setSelectedColor(e.target.value)} className="border p-1 rounded w-full">
+                          <select
+                            value={selectedColor}
+                            onChange={e => handleColorChange(product._id, e.target.value)}
+                            className="border p-1 rounded w-full"
+                          >
                             {product.colors.map((c) => <option key={c} value={c}>{c}</option>)}
                           </select>
                         </div>
