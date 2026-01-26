@@ -22,7 +22,7 @@ export default function NewProduct() {
     description: "",
     category: "Accessories",
     stock: "",
-    sizes: [""],
+    sizes: [],
     colors: [],
   })
   const [imageFile, setImageFile] = useState(null)
@@ -60,10 +60,9 @@ export default function NewProduct() {
       data.append("description", formData.description)
       data.append("category", formData.category)
 
-      // ✅ FIXED: Send fields backend expects
       if (formData.category === "Night Suits") {
-        data.append("size", formData.sizes[0])
-        data.append("colors", formData.colors.join(","))
+        formData.sizes.forEach((size) => data.append("sizes[]", size))
+        formData.colors.forEach((color) => data.append("colors[]", color))
       }
 
       if (imageFile) data.append("image", imageFile)
@@ -71,7 +70,7 @@ export default function NewProduct() {
       await apiService.createProduct(data, true)
       navigate("/admin/products")
     } catch (err) {
-      setError(err.response?.data?.error || err.message || "Failed to create product")
+      setError(err.message || "Failed to create product")
     } finally {
       setIsLoading(false)
     }
@@ -106,23 +105,44 @@ export default function NewProduct() {
 
                 <div className="space-y-2">
                   <Label>Product Name *</Label>
-                  <Input name="name" value={formData.name} onChange={handleChange} required />
+                  <Input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Price *</Label>
-                    <Input name="price" type="number" step="0.01" value={formData.price} onChange={handleChange} required />
+                    <Input
+                      name="price"
+                      type="number"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Stock</Label>
-                    <Input name="stock" type="number" value={formData.stock} onChange={handleChange} />
+                    <Input
+                      name="stock"
+                      type="number"
+                      value={formData.stock}
+                      onChange={handleChange}
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label>Upload Image</Label>
-                  <Input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setImageFile(e.target.files[0])}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -144,18 +164,20 @@ export default function NewProduct() {
                 {formData.category === "Night Suits" && (
                   <>
                     <div className="space-y-2">
-                      <Label>Size *</Label>
+                      <Label>Sizes *</Label>
                       <select
-                        value={formData.sizes[0]}
-                        onChange={(e) => setFormData({ ...formData, sizes: [e.target.value] })}
+                        multiple
+                        value={formData.sizes}
+                        onChange={handleSizeChange}
                         className="border p-2 rounded w-full"
-                        required
                       >
-                        <option value="">Select Size</option>
                         <option value="Medium">Medium</option>
                         <option value="Large">Large</option>
                         <option value="Extra Large">Extra Large</option>
                       </select>
+                      <p className="text-sm text-gray-500">
+                        Admin sets available sizes (user will select later).
+                      </p>
                     </div>
 
                     <div className="space-y-2">
@@ -164,15 +186,22 @@ export default function NewProduct() {
                         placeholder="Red, Blue, Green"
                         value={formData.colors.join(", ")}
                         onChange={handleColorsChange}
-                        required
                       />
+                      <p className="text-sm text-gray-500">
+                        Admin sets available colors (user will select later).
+                      </p>
                     </div>
                   </>
                 )}
 
                 <div className="space-y-2">
                   <Label>Description</Label>
-                  <Textarea name="description" value={formData.description} onChange={handleChange} rows={4} />
+                  <Textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    rows={4}
+                  />
                 </div>
 
                 <div className="flex space-x-4">

@@ -9,6 +9,7 @@ import { useCart } from "../context/cart-context"
 import { useAuth } from "../context/auth-context"
 import Footer from "../components/Footer"
 import { apiService } from "../services/api"
+import { Label } from "../components/ui/label"
 
 export default function HomePage() {
   const { addToCart, cartItems } = useCart()
@@ -78,110 +79,105 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* ================= MAIN NAVBAR ================= */}
-     {/* ================= MAIN NAVBAR ================= */}
-<nav className="bg-white shadow-sm border-b">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="flex justify-between items-center h-16">
-      <Link to="/" className="text-2xl font-bold text-gray-900">
-        Tatheer Fatima Collection
-      </Link>
-
-      {/* Desktop Menu */}
-      <div className="hidden md:flex items-center space-x-4">
-        {user ? (
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
-            {user.role === "admin" && (
-              <Link to="/admin">
-                <Button variant="ghost" size="sm">Admin Panel</Button>
-              </Link>
-            )}
-            <Link to="/my-orders">
-              <Button variant="ghost" size="sm">My Orders</Button>
+      {/* MAIN NAVBAR */}
+      <nav className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link to="/" className="text-2xl font-bold text-gray-900">
+              Tatheer Fatima Collection
             </Link>
-            <Button variant="ghost" size="sm" onClick={logout}>
-              Logout
-            </Button>
-          </div>
-        ) : (
-          <Link to="/login">
-            <Button variant="ghost" size="sm">
-              <User className="h-4 w-4 mr-2" /> Login
-            </Button>
-          </Link>
-        )}
-        <Link to="/cart">
-          <Button variant="outline" size="sm" className="relative bg-transparent">
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Cart
-            {totalCartQuantity > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {totalCartQuantity}
-              </span>
-            )}
-          </Button>
-        </Link>
-      </div>
-
-      {/* Mobile Menu Toggle */}
-      <button
-        className="md:hidden p-2 rounded hover:bg-gray-100"
-        onClick={() => setMenuOpen(!menuOpen)}
-      >
-        {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-      </button>
-    </div>
-  </div>
-
-  {/* Mobile Menu */}
-  {menuOpen && (
-    <div className="md:hidden bg-white border-t shadow-sm">
-      <div className="px-4 py-4 space-y-2">
-        {user ? (
-          <>
-            <p className="text-sm text-gray-600">Welcome, {user.name}!</p>
-            {user.role === "admin" && (
-              <Link to="/admin">
-                <Button variant="ghost" size="sm" className="w-full text-left">
-                  Admin Panel
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center space-x-4">
+              {user ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
+                  {user.role === "admin" && (
+                    <Link to="/admin">
+                      <Button variant="ghost" size="sm">Admin Panel</Button>
+                    </Link>
+                  )}
+                  <Link to="/my-orders">
+                    <Button variant="ghost" size="sm">My Orders</Button>
+                  </Link>
+                  <Button variant="ghost" size="sm" onClick={logout}>
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <Link to="/login">
+                  <Button variant="ghost" size="sm">
+                    <User className="h-4 w-4 mr-2" /> Login
+                  </Button>
+                </Link>
+              )}
+              <Link to="/cart">
+                <Button variant="outline" size="sm" className="relative bg-transparent">
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Cart
+                  {totalCartQuantity > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {totalCartQuantity}
+                    </span>
+                  )}
                 </Button>
               </Link>
-            )}
-            <Link to="/my-orders">
-              <Button variant="ghost" size="sm" className="w-full text-left">
-                My Orders
-              </Button>
-            </Link>
-            <Button variant="ghost" size="sm" className="w-full text-left" onClick={logout}>
-              Logout
-            </Button>
-          </>
-        ) : (
-          <Link to="/login">
-            <Button variant="ghost" size="sm" className="w-full text-left">
-              <User className="h-4 w-4 mr-2" /> Login
-            </Button>
-          </Link>
+            </div>
+            {/* Mobile Menu Toggle */}
+            <button
+              className="md:hidden p-2 rounded hover:bg-gray-100"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+        </div>
+        {/* Mobile Menu */}
+        {menuOpen && (
+          <div className="md:hidden bg-white border-t shadow-sm">
+            <div className="px-4 py-4 space-y-2">
+              {user ? (
+                <>
+                  <p className="text-sm text-gray-600">Welcome, {user.name}!</p>
+                  {user.role === "admin" && (
+                    <Link to="/admin">
+                      <Button variant="ghost" size="sm" className="w-full text-left">
+                        Admin Panel
+                      </Button>
+                    </Link>
+                  )}
+                  <Link to="/my-orders">
+                    <Button variant="ghost" size="sm" className="w-full text-left">
+                      My Orders
+                    </Button>
+                  </Link>
+                  <Button variant="ghost" size="sm" className="w-full text-left" onClick={logout}>
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Link to="/login">
+                  <Button variant="ghost" size="sm" className="w-full text-left">
+                    <User className="h-4 w-4 mr-2" /> Login
+                  </Button>
+                </Link>
+              )}
+              <Link to="/cart">
+                <Button variant="outline" size="sm" className="w-full text-left relative bg-transparent">
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Cart
+                  {totalCartQuantity > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {totalCartQuantity}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            </div>
+          </div>
         )}
-        <Link to="/cart">
-          <Button variant="outline" size="sm" className="w-full text-left relative bg-transparent">
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Cart
-            {totalCartQuantity > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {totalCartQuantity}
-              </span>
-            )}
-          </Button>
-        </Link>
-      </div>
-    </div>
-  )}
-</nav>
+      </nav>
 
-
-      {/* ================= CATEGORY NAVBAR ================= */}
+      {/* CATEGORY NAVBAR */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex gap-4 overflow-x-auto py-3">
@@ -202,7 +198,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ================= HERO ================= */}
+      {/* HERO */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
@@ -214,7 +210,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ================= PRODUCTS ================= */}
+      {/* PRODUCTS */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
           Featured Products

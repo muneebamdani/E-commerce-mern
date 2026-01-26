@@ -26,7 +26,7 @@ export default function EditProduct() {
     description: "",
     category: "Accessories",
     stock: "",
-    size: "",
+    sizes: [],
     colors: [],
   })
 
@@ -52,7 +52,7 @@ export default function EditProduct() {
         description: product.description,
         category: product.category || "Accessories",
         stock: product.stock,
-        size: product.size || "",
+        sizes: product.sizes || [],
         colors: product.colors || [],
       })
     } catch {
@@ -71,6 +71,11 @@ export default function EditProduct() {
     setFormData({ ...formData, colors })
   }
 
+  const handleSizesChange = (e) => {
+    const selected = Array.from(e.target.selectedOptions, (option) => option.value)
+    setFormData({ ...formData, sizes: selected })
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
@@ -84,10 +89,9 @@ export default function EditProduct() {
       payload.append("description", formData.description)
       payload.append("category", formData.category)
 
-      // ✅ Send fields backend expects
       if (formData.category === "Night Suits") {
-        payload.append("size", formData.size)
-        payload.append("colors", formData.colors.join(","))
+        formData.sizes.forEach((size) => payload.append("sizes[]", size))
+        formData.colors.forEach((color) => payload.append("colors[]", color))
       }
 
       if (imageFile) {
@@ -167,23 +171,23 @@ export default function EditProduct() {
                   </select>
                 </div>
 
-                {/* ✅ Night Suits Fields */}
+                {/* Night Suits fields */}
                 {formData.category === "Night Suits" && (
                   <>
                     <div className="space-y-2">
-                      <Label>Size *</Label>
+                      <Label>Sizes *</Label>
                       <select
-                        name="size"
-                        value={formData.size}
-                        onChange={handleChange}
+                        multiple
+                        value={formData.sizes}
+                        onChange={handleSizesChange}
                         className="border p-2 rounded w-full"
                         required
                       >
-                        <option value="">Select Size</option>
                         <option value="Medium">Medium</option>
                         <option value="Large">Large</option>
                         <option value="Extra Large">Extra Large</option>
                       </select>
+                      <p className="text-sm text-gray-500">Hold Ctrl (Windows) or Cmd (Mac) to select multiple sizes</p>
                     </div>
 
                     <div className="space-y-2">
