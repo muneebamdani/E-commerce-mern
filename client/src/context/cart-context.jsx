@@ -48,9 +48,11 @@ export function CartProvider({ children }) {
     setCartItems((prev) =>
       prev.filter(
         (item) =>
-          item.id !== product.id ||
-          item.size !== (product.size || "") ||
-          item.color !== (product.color || "")
+          !(
+            item.id === product.id &&
+            item.size === (product.size || "") &&
+            item.color === (product.color || "")
+          )
       )
     )
   }

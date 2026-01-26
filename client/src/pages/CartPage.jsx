@@ -147,22 +147,22 @@ export default function CartPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => updateQuantity(item.id, (item.quantity || 1) - 1)}
+                      onClick={() => updateQuantity(item, item.quantity - 1)}
                     >
                       <Minus className="h-3 w-3" />
                     </Button>
-                    <span className="px-2">{item.quantity || 1}</span>
+                    <span className="px-2">{item.quantity}</span>
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => updateQuantity(item.id, (item.quantity || 1) + 1)}
+                      onClick={() => updateQuantity(item, item.quantity + 1)}
                     >
                       <Plus className="h-3 w-3" />
                     </Button>
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => removeFromCart(item)}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -180,7 +180,7 @@ export default function CartPage() {
             <CardContent>
               <div className="flex justify-between mb-2">
                 <span>Total Items</span>
-                <span>{cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0)}</span>
+                <span>{cartItems.reduce((acc, item) => acc + item.quantity, 0)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg">
                 <span>Total Price</span>
