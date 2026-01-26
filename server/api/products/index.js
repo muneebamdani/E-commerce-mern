@@ -7,16 +7,16 @@ import cloudinary from "../../utils/cloudinary.js";
 
 const router = express.Router();
 
-// DB connection middleware
+// Ensure DB connection
 router.use(async (req, res, next) => {
   await connectDB();
   next();
 });
 
-// Multer memory storage for Cloudinary
+// Multer memory storage
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Helper: upload image buffer to Cloudinary
+// Upload helper
 const uploadToCloudinary = (fileBuffer) => {
   if (!fileBuffer) return null;
   return new Promise((resolve, reject) => {
@@ -31,7 +31,7 @@ const uploadToCloudinary = (fileBuffer) => {
   });
 };
 
-// -------------------- GET all products --------------------
+/* -------------------- GET ALL PRODUCTS -------------------- */
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find({}).sort({ createdAt: -1 });
@@ -42,7 +42,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// -------------------- CREATE new product (admin only) --------------------
+/* -------------------- CREATE PRODUCT -------------------- */
 router.post(
   "/",
   verifyToken,
@@ -50,22 +50,39 @@ router.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      const { name, description, price, stock, category, size, colors } = req.body;
+      const { name, description, price, stock, category } = req.body;
 
-      if (!name || !price) {
-        return res.status(400).json({ error: "Product name and price are required" });
+      // Parse sizes & colors (can arrive as JSON strings in FormData)
+      let sizes = [];
+      let colors = [];
+
+      if (req.body.sizes) {
+        sizes = typeof req.body.sizes === "string"
+          ? JSON.parse(req.body.sizes)
+          : req.body.sizes;
       }
 
-      // ✅ Night Suits validation
-      let colorsArray = [];
+      if (req.body.colors) {
+        colors = typeof req.body.colors === "string"
+          ? JSON.parse(req.body.colors)
+          : req.body.colors;
+      }
+
+      // Basic validation
+      if (!name || !description || !price || !category) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      // Night Suits validation
       if (category === "Night Suits") {
-        if (!size || !colors) {
-          return res.status(400).json({ error: "Night Suits must have size and colors" });
+        if (sizes.length === 0 || colors.length === 0) {
+          return res.status(400).json({
+            error: "Night Suits must have at least one size and one color"
+          });
         }
-        colorsArray = colors.split(",").map(c => c.trim());
       }
 
-      // Upload image to Cloudinary if provided
+      // Upload image
       let image = "";
       if (req.file) {
         const result = await uploadToCloudinary(req.file.buffer);
@@ -74,25 +91,104 @@ router.post(
 
       const newProduct = new Product({
         name,
-        description: description || "",
-        price: Math.round(Number(price)),
-        stock: Number(stock) || 100,
-        category: category || "",
+        description,
+        price: Number(price),
+        stock: Number(stock) || 0,
+        category,
         image,
-        size: size || undefined,
-        colors: colorsArray.length > 0 ? colorsArray : undefined,
+        sizes,
+        colors
       });
 
       await newProduct.save();
-      res.status(201).json({ message: "Product created successfully", product: newProduct });
+      res.status(201).json({
+        message: "Product created successfully",
+        product: newProduct
+      });
+
     } catch (error) {
-      console.error("Product creation error:", error, error.stack);
+      console.error("Product creation error:", error);
       res.status(500).json({ error: error.message || "Server error" });
     }
   }
 );
 
-// -------------------- DELETE product --------------------
+/* -------------------- UPDATE PRODUCT -------------------- */
+router.put(
+  "/:id",
+  verifyToken,
+  requireAdmin,
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      const { price, category, description, name, stock } = req.body;
+
+      let sizes = [];
+      let colors = [];
+
+      if (req.body.sizes) {
+        sizes = typeof req.body.sizes === "string"
+          ? JSON.parse(req.body.sizes)
+          : req.body.sizes;
+      }
+
+      if (req.body.colors) {
+        colors = typeof req.body.colors === "string"
+          ? JSON.parse(req.body.colors)
+          : req.body.colors;
+      }
+
+      // Night Suits validation
+      if (category === "Night Suits") {
+        if (sizes.length === 0 || colors.length === 0) {
+          return res.status(400).json({
+            error: "Night Suits must have sizes and colors"
+          });
+        }
+      }
+
+      // Upload new image if provided
+      let updatedFields = {
+        name,
+        description,
+        category,
+        stock: Number(stock),
+        sizes,
+        colors
+      };
+
+      if (price !== undefined) {
+        updatedFields.price = Number(price);
+      }
+
+      if (req.file) {
+        const result = await uploadToCloudinary(req.file.buffer);
+        updatedFields.image = result.secure_url;
+      }
+
+      const updatedProduct = await Product.findByIdAndUpdate(
+        req.params.id,
+        updatedFields,
+        { new: true }
+      );
+
+      if (!updatedProduct) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      res.json({
+        message: "Product updated successfully",
+        product: updatedProduct
+      });
+
+    } catch (error) {
+      console.error("Product update error:", error);
+      res.status(500).json({ error: error.message || "Server error" });
+    }
+  }
+);
+
+/* -------------------- DELETE PRODUCT -------------------- */
 router.delete("/:id", verifyToken, requireAdmin, async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
@@ -100,58 +196,18 @@ router.delete("/:id", verifyToken, requireAdmin, async (req, res) => {
 
     res.json({ message: "Product deleted successfully" });
   } catch (error) {
-    console.error("Product deletion error:", error, error.stack);
+    console.error("Product deletion error:", error);
     res.status(500).json({ error: error.message || "Server error" });
   }
 });
 
-// -------------------- UPDATE product --------------------
-router.put("/:id", verifyToken, requireAdmin, upload.single("image"), async (req, res) => {
-  try {
-    const { price, size, colors, category, ...rest } = req.body;
-
-    // ✅ Night Suits validation
-    let colorsArray = [];
-    if (category === "Night Suits") {
-      if (!size || !colors) {
-        return res.status(400).json({ error: "Night Suits must have size and colors" });
-      }
-      colorsArray = colors.split(",").map(c => c.trim());
-    }
-
-    // Upload new image if provided
-    if (req.file) {
-      const result = await uploadToCloudinary(req.file.buffer);
-      rest.image = result.secure_url;
-    }
-
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      {
-        ...rest,
-        size: size || undefined,
-        colors: colorsArray.length > 0 ? colorsArray : undefined,
-        ...(price !== undefined && { price: Math.round(Number(price)) }),
-      },
-      { new: true }
-    );
-
-    if (!updatedProduct) return res.status(404).json({ error: "Product not found" });
-
-    res.json({ message: "Product updated successfully", product: updatedProduct });
-  } catch (error) {
-    console.error("Product update error:", error, error.stack);
-    res.status(500).json({ error: error.message || "Server error" });
-  }
-});
-
-// -------------------- GET total product count --------------------
+/* -------------------- PRODUCT COUNT -------------------- */
 router.get("/count", async (req, res) => {
   try {
     const count = await Product.countDocuments();
     res.json({ count });
   } catch (error) {
-    console.error("Product count error:", error, error.stack);
+    console.error("Product count error:", error);
     res.status(500).json({ error: "Failed to fetch product count" });
   }
 });

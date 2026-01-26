@@ -15,8 +15,10 @@ export default function EditProduct() {
   const { id } = useParams()
   const { user } = useAuth()
   const navigate = useNavigate()
+
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -24,9 +26,10 @@ export default function EditProduct() {
     description: "",
     category: "Accessories",
     stock: "",
-    sizes: [],
+    size: "",
     colors: [],
   })
+
   const [imageFile, setImageFile] = useState(null)
 
   useEffect(() => {
@@ -39,18 +42,19 @@ export default function EditProduct() {
     try {
       const products = await apiService.getProducts()
       const product = products.find((p) => p._id === id)
-      if (product) {
-        setFormData({
-          name: product.name,
-          price: product.price,
-          image: product.image,
-          description: product.description,
-          category: product.category || "Accessories",
-          stock: product.stock,
-          sizes: product.sizes || [],
-          colors: product.colors || [],
-        })
-      } else setError("Product not found")
+
+      if (!product) return setError("Product not found")
+
+      setFormData({
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        description: product.description,
+        category: product.category || "Accessories",
+        stock: product.stock,
+        size: product.size || "",
+        colors: product.colors || [],
+      })
     } catch {
       setError("Failed to load product")
     }
@@ -59,44 +63,41 @@ export default function EditProduct() {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value })
 
-  const handleSizeChange = (e) =>
-    setFormData({
-      ...formData,
-      sizes: Array.from(e.target.selectedOptions, (o) => o.value),
-    })
-
-  const handleColorsChange = (e) =>
-    setFormData({
-      ...formData,
-      colors: e.target.value.split(",").map((c) => c.trim()).filter(Boolean),
-    })
+  const handleColorsChange = (e) => {
+    const colors = e.target.value
+      .split(",")
+      .map((c) => c.trim())
+      .filter(Boolean)
+    setFormData({ ...formData, colors })
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
     setIsLoading(true)
+
     try {
-      let payload
-      if (imageFile) {
-        payload = new FormData()
-        payload.append("name", formData.name)
-        payload.append("price", Number(formData.price))
-        payload.append("stock", Number(formData.stock))
-        payload.append("description", formData.description)
-        payload.append("category", formData.category)
-        if (formData.category === "Night Suits") {
-          formData.sizes.forEach((s) => payload.append("sizes[]", s))
-          formData.colors.forEach((c) => payload.append("colors[]", c))
-        }
-        payload.append("image", imageFile)
-      } else {
-        payload = { ...formData, price: Number(formData.price), stock: Number(formData.stock) }
+      const payload = new FormData()
+      payload.append("name", formData.name)
+      payload.append("price", Number(formData.price))
+      payload.append("stock", Number(formData.stock))
+      payload.append("description", formData.description)
+      payload.append("category", formData.category)
+
+      // ✅ Send fields backend expects
+      if (formData.category === "Night Suits") {
+        payload.append("size", formData.size)
+        payload.append("colors", formData.colors.join(","))
       }
 
-      await apiService.updateProduct(id, payload, !!imageFile)
+      if (imageFile) {
+        payload.append("image", imageFile)
+      }
+
+      await apiService.updateProduct(id, payload, true)
       navigate("/admin/products")
     } catch (err) {
-      setError(err.message || "Failed to update product")
+      setError(err.response?.data?.error || err.message || "Failed to update product")
     } finally {
       setIsLoading(false)
     }
@@ -115,9 +116,7 @@ export default function EditProduct() {
                 Back
               </Button>
             </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
-            </div>
+            <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
           </div>
 
           <Card>
@@ -133,7 +132,7 @@ export default function EditProduct() {
                   <Input name="name" value={formData.name} onChange={handleChange} required />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Price *</Label>
                     <Input name="price" type="number" value={formData.price} onChange={handleChange} required />
@@ -147,7 +146,7 @@ export default function EditProduct() {
                 <div className="space-y-2">
                   <Label>Current Image</Label>
                   {formData.image && (
-                    <img src={formData.image} alt="Current" className="w-32 h-32 object-cover rounded-md mb-2" />
+                    <img src={formData.image} className="w-32 h-32 object-cover rounded mb-2" />
                   )}
                   <Label>Upload New Image</Label>
                   <Input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
@@ -160,9 +159,7 @@ export default function EditProduct() {
                     value={formData.category}
                     onChange={handleChange}
                     className="border p-2 rounded w-full"
-                    required
                   >
-                    <option value="">Select Category</option>
                     <option value="Accessories">Accessories</option>
                     <option value="Clothing">Clothing</option>
                     <option value="Night Suits">Night Suits</option>
@@ -170,38 +167,40 @@ export default function EditProduct() {
                   </select>
                 </div>
 
+                {/* ✅ Night Suits Fields */}
                 {formData.category === "Night Suits" && (
                   <>
                     <div className="space-y-2">
-                      <Label>Sizes *</Label>
+                      <Label>Size *</Label>
                       <select
-                        multiple
-                        value={formData.sizes}
-                        onChange={handleSizeChange}
+                        name="size"
+                        value={formData.size}
+                        onChange={handleChange}
                         className="border p-2 rounded w-full"
+                        required
                       >
+                        <option value="">Select Size</option>
                         <option value="Medium">Medium</option>
                         <option value="Large">Large</option>
                         <option value="Extra Large">Extra Large</option>
                       </select>
-                      <p className="text-sm text-gray-500">Hold Ctrl/Cmd to select multiple sizes.</p>
                     </div>
 
                     <div className="space-y-2">
                       <Label>Colors *</Label>
                       <Input
-                        placeholder="Red, Blue"
                         value={formData.colors.join(", ")}
                         onChange={handleColorsChange}
+                        placeholder="Red, Blue, Green"
+                        required
                       />
-                      <p className="text-sm text-gray-500">Enter colors separated by commas.</p>
                     </div>
                   </>
                 )}
 
                 <div className="space-y-2">
                   <Label>Description</Label>
-                  <Textarea name="description" value={formData.description} onChange={handleChange} rows={4} />
+                  <Textarea name="description" value={formData.description} onChange={handleChange} />
                 </div>
 
                 <div className="flex space-x-4">
