@@ -13,19 +13,19 @@ export default function Footer() {
               Your one-stop destination for quality products at unbeatable prices. Shop with confidence and convenience.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              {/* <a href="#" className="text-gray-300 hover:text-white transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
               <a href="#" className="text-gray-300 hover:text-white transition-colors">
                 <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              </a> */}
+              <a href="https://www.instagram.com/tatheerfatimacollection?igsh=MXEzdm5qNjBtYnozbA==" className="text-gray-300 hover:text-white transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links
           <div className="space-y-4">
             <h4 className="text-lg font-semibold">Quick Links</h4>
             <ul className="space-y-2">
@@ -50,9 +50,9 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </div> */}
 
-          {/* Customer Service */}
+           {/* Customer Service
           <div className="space-y-4">
             <h4 className="text-lg font-semibold">Customer Service</h4>
             <ul className="space-y-2">
@@ -82,7 +82,7 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* Contact Info */}
           <div className="space-y-4">
@@ -90,16 +90,16 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-gray-300" />
-                <span className="text-gray-300">Address</span>
+                <span className="text-gray-300">Karachi,Pakistan</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-gray-300" />
-                <span className="text-gray-300">Mobile Number</span>
+                <span className="text-gray-300">+923273361320</span>
               </div>
-              <div className="flex items-center space-x-3">
+              {/* <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-gray-300" />
                 <span className="text-gray-300">Email</span>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
