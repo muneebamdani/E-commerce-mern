@@ -19,7 +19,7 @@ export default function Footer() {
               <a href="#" className="text-gray-300 hover:text-white transition-colors">
                 <Twitter className="h-5 w-5" />
               </a> */}
-              <a href="https://www.instagram.com/tatheerfatimacollection?igsh=MXEzdm5qNjBtYnozbA==" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://www.instagram.com/tatheerfatimacollection?igsh=MXEzdm5qNjBtYnozbA==" target="_blank" className="text-gray-300 hover:text-white transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
             </div>
@@ -106,15 +106,15 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-300 text-sm">© 2024 Tatheer Fatima Collection. All rights reserved.</p>
+          <p className="text-gray-300 text-sm">© 2026 Tatheer Fatima Collection. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <Link to="/privacy" className="text-gray-300 hover:text-white text-sm transition-colors">
+            <Link to="#" className="text-gray-300 hover:text-white text-sm transition-colors">
               Privacy Policy
             </Link>
-            <Link to="/terms" className="text-gray-300 hover:text-white text-sm transition-colors">
+            <Link to="#" className="text-gray-300 hover:text-white text-sm transition-colors">
               Terms of Service
             </Link>
-            <Link to="/cookies" className="text-gray-300 hover:text-white text-sm transition-colors">
+            <Link to="#" className="text-gray-300 hover:text-white text-sm transition-colors">
               Cookie Policy
             </Link>
           </div>
