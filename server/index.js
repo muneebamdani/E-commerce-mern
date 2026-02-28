@@ -18,9 +18,22 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 // ✅ Middleware
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://tatheer-fatima-collection.vercel.app",
+  "https://tatheer-fatima-collection.store",
+  "https://www.tatheer-fatima-collection.store",
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
