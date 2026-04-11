@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom"
+import { Routes, Route, useNavigate } from "react-router-dom"
+import { useEffect } from "react" // ✅ ADD
 import { AuthProvider } from "./context/auth-context"
 import { CartProvider } from "./context/cart-context"
 import HomePage from "./pages/HomePage"
@@ -12,11 +13,24 @@ import AdminOrders from "./pages/admin/AdminOrders"
 import NewProduct from "./pages/admin/NewProduct"
 import EditProduct from "./pages/admin/EditProduct"
 import PrivateRoute from "./components/PrivateRoute.jsx"
-
-// ✅ Import user orders page
 import MyOrdersPage from "./pages/MyOrdersPage.jsx"
 
+// ✅ import your file (you named it auther.js)
+import { isTokenExpired } from "./utils/auther"
+
 function App() {
+  const navigate = useNavigate(); // ✅ ADD
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwt_token");
+
+    if (token && isTokenExpired(token)) {
+      localStorage.removeItem("jwt_token");
+      localStorage.removeItem("user"); // ✅ important (you store user too)
+      navigate("/login");
+    }
+  }, []);
+
   return (
     <AuthProvider>
       <CartProvider>
@@ -28,8 +42,7 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
 
-
-          {/* ✅ User orders route (normal logged-in user) */}
+          {/* User orders */}
           <Route
             path="/my-orders"
             element={
