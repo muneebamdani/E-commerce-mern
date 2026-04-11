@@ -1,35 +1,28 @@
-import { Routes, Route, useNavigate } from "react-router-dom"
-import { useEffect } from "react" // ✅ ADD
-import { AuthProvider } from "./context/auth-context"
-import { CartProvider } from "./context/cart-context"
-import HomePage from "./pages/HomePage"
-import LoginPage from "./pages/LoginPage"
-import SignupPage from "./pages/SignupPage"
-import CartPage from "./pages/CartPage"
-import OrderConfirmationPage from "./pages/OrderConfirmationPage"
-import AdminDashboard from "./pages/admin/AdminDashboard"
-import AdminProducts from "./pages/admin/AdminProducts"
-import AdminOrders from "./pages/admin/AdminOrders"
-import NewProduct from "./pages/admin/NewProduct"
-import EditProduct from "./pages/admin/EditProduct"
-import PrivateRoute from "./components/PrivateRoute.jsx"
-import MyOrdersPage from "./pages/MyOrdersPage.jsx"
+import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/auth-context";
+import { CartProvider } from "./context/cart-context";
 
-// ✅ import your file (you named it auther.js)
-import { isTokenExpired } from "./utils/auther"
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import CartPage from "./pages/CartPage";
+import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminOrders from "./pages/admin/AdminOrders";
+import NewProduct from "./pages/admin/NewProduct";
+import EditProduct from "./pages/admin/EditProduct";
+
+import PrivateRoute from "./components/PrivateRoute.jsx";
+import MyOrdersPage from "./pages/MyOrdersPage.jsx";
+
+// ✅ AUTH HELPERS
+// import { useAutoLogout } from "./hooks/useAutoLogout";
 
 function App() {
-  const navigate = useNavigate(); // ✅ ADD
-
-  useEffect(() => {
-    const token = localStorage.getItem("jwt_token");
-
-    if (token && isTokenExpired(token)) {
-      localStorage.removeItem("jwt_token");
-      localStorage.removeItem("user"); // ✅ important (you store user too)
-      navigate("/login");
-    }
-  }, []);
+  // 🔥 AUTO LOGOUT ACTIVATED HERE
+  useAutoLogout();
 
   return (
     <AuthProvider>
@@ -42,7 +35,7 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
 
-          {/* User orders */}
+          {/* User Orders */}
           <Route
             path="/my-orders"
             element={
@@ -96,7 +89,7 @@ function App() {
         </Routes>
       </CartProvider>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;
