@@ -18,7 +18,7 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import MyOrdersPage from "./pages/MyOrdersPage.jsx";
 
 // ✅ AUTH HELPERS
-// import { useAutoLogout } from "./hooks/useAutoLogout";
+import { useAutoLogout } from "./hooks/useAutoLogout";
 
 function App() {
   // 🔥 AUTO LOGOUT ACTIVATED HERE
