@@ -40,7 +40,7 @@ router.post("/", async (req, res) => {
         mobile: user.mobile,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "5m" }
     );
 
     console.log("✅ Token created:", token);
