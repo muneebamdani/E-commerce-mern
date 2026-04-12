@@ -21,7 +21,7 @@ export const apiService = {
   // -------------------- DASHBOARD / STATS --------------------
   getDashboardCounts: async () => {
     try {
-      const res = await api.get("/users/overview");
+      const res = await api.get("/overview");
       return res.data;
     } catch (err) {
       throw new Error(
