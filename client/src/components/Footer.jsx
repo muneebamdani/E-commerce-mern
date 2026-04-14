@@ -19,7 +19,7 @@ export default function Footer() {
               <a href="#" className="text-gray-300 hover:text-white transition-colors">
                 <Twitter className="h-5 w-5" />
               </a> */}
-              <a href="https://www.instagram.com/tatheerfatimacollection?igsh=MXEzdm5qNjBtYnozbA==" target="_blank" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://www.instagram.com/tatheer_fatima_collection/" target="_blank" className="text-gray-300 hover:text-white transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
             </div>
@@ -92,14 +92,14 @@ export default function Footer() {
                 <MapPin className="h-5 w-5 text-gray-300" />
                 <span className="text-gray-300">Karachi,Pakistan</span>
               </div>
-              <div className="flex items-center space-x-3">
+              {/* <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-gray-300" />
                 <span className="text-gray-300">+923273361320</span>
-              </div>
-              {/* <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-gray-300" />
-                <span className="text-gray-300">Email</span>
               </div> */}
+              <div className="flex items-center space-x-3">
+                <Mail className="h-5 w-5 text-gray-300" />
+                <span className="text-gray-300">businessbytatheerfatima@gmail.com</span>
+              </div>
             </div>
           </div>
         </div>
