@@ -35,22 +35,38 @@ router.post("/", verifyToken, async (req, res) => {
 
     for (const item of items) {
       const product = await Product.findById(item.product || item.productId);
-      if (!product) return res.status(400).json({ error: `Product ${item.product} not found` });
+
+      if (!product) {
+        return res.status(400).json({
+          error: `Product not found`
+        });
+      }
+
+      // ✅ OUT OF STOCK CHECK
+      if (product.stock === 0) {
+        return res.status(400).json({
+          error: `${product.name} is out of stock`
+        });
+      }
+
+      // ✅ INSUFFICIENT STOCK CHECK
       if (product.stock < item.quantity) {
         return res.status(400).json({
-          error: `Insufficient stock for ${product.name}. Available: ${product.stock}`,
+          error: `Only ${product.stock} items available for ${product.name}`
         });
       }
 
       totalAmount += product.price * item.quantity;
+
       orderItems.push({
         product: product._id,
         quantity: item.quantity,
         price: product.price,
-        size: item.size || null,   // ✅ include size
-        color: item.color || null, // ✅ include color
+        size: item.size || null,
+        color: item.color || null,
       });
 
+      // ✅ REDUCE STOCK
       product.stock -= item.quantity;
       await product.save();
     }
@@ -72,9 +88,12 @@ router.post("/", verifyToken, async (req, res) => {
       message: "Order created successfully",
       order,
     });
+
   } catch (error) {
     console.error("Order creation error:", error);
-    return res.status(500).json({ error: error.message || "Server error" });
+    return res.status(500).json({
+      error: error.message || "Server error"
+    });
   }
 });
 
@@ -82,17 +101,22 @@ router.post("/", verifyToken, async (req, res) => {
 router.get("/my", verifyToken, async (req, res) => {
   try {
     const user = req.user;
+
     const orders = await Order.find({ user: user._id })
       .populate("items.product", "name image price")
       .sort({ createdAt: -1 });
+
     return res.status(200).json(orders);
+
   } catch (error) {
     console.error("User orders fetch error:", error);
-    return res.status(500).json({ error: error.message || "Server error" });
+    return res.status(500).json({
+      error: error.message || "Server error"
+    });
   }
 });
 
-// ✅ Get single order details + status (for logged-in user)
+// ✅ Get single order details
 router.get("/my/:orderId", verifyToken, async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -115,6 +139,7 @@ router.get("/my/:orderId", verifyToken, async (req, res) => {
       message: "Order fetched successfully",
       order,
     });
+
   } catch (error) {
     console.error("Single order fetch error:", error);
     return res.status(500).json({ error: "Server error" });
@@ -123,47 +148,62 @@ router.get("/my/:orderId", verifyToken, async (req, res) => {
 
 /* ------------------------- ADMIN ROUTES ------------------------- */
 
-// ✅ Get all orders (admin only)
+// ✅ Get all orders (admin)
 router.get("/", verifyToken, requireAdmin, async (req, res) => {
   try {
     const orders = await Order.find({})
       .populate("items.product", "name image price")
       .populate("user", "name email mobile address")
       .sort({ createdAt: -1 });
+
     return res.status(200).json(orders);
+
   } catch (error) {
     console.error("Orders fetch error:", error);
-    return res.status(500).json({ error: error.message || "Server error" });
+    return res.status(500).json({
+      error: error.message || "Server error"
+    });
   }
 });
 
-// ✅ Update order status (admin only)
+// ✅ Update order status
 router.put("/:orderId/status", verifyToken, requireAdmin, async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
-    if (!status) return res.status(400).json({ error: "Status is required" });
+
+    if (!status) {
+      return res.status(400).json({ error: "Status is required" });
+    }
 
     const order = await Order.findById(orderId);
-    if (!order) return res.status(404).json({ error: "Order not found" });
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
 
     order.status = status;
     await order.save();
 
-    return res.status(200).json({ success: true, order });
+    return res.status(200).json({
+      success: true,
+      order
+    });
+
   } catch (error) {
     console.error("Update order status error:", error);
     return res.status(500).json({ error: "Server error" });
   }
 });
 
-/* ------------------------- DASHBOARD COUNT ROUTE ------------------------- */
+/* ------------------------- DASHBOARD COUNT ------------------------- */
 router.get("/dashboard-counts", verifyToken, requireAdmin, async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalProducts = await Product.countDocuments();
     const totalOrders = await Order.countDocuments();
+
     res.json({ totalUsers, totalProducts, totalOrders });
+
   } catch (err) {
     console.error("Dashboard counts fetch error:", err);
     res.status(500).json({ error: "Server error" });

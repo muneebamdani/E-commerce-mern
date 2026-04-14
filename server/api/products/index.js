@@ -52,7 +52,6 @@ router.post(
     try {
       const { name, description, price, stock, category } = req.body;
 
-      // Parse sizes & colors (can arrive as JSON strings in FormData)
       let sizes = [];
       let colors = [];
 
@@ -68,12 +67,10 @@ router.post(
           : req.body.colors;
       }
 
-      // Basic validation
       if (!name || !description || !price || !category) {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      // Night Suits validation
       if (category === "Night Suits") {
         if (sizes.length === 0 || colors.length === 0) {
           return res.status(400).json({
@@ -82,7 +79,6 @@ router.post(
         }
       }
 
-      // Upload image
       let image = "";
       if (req.file) {
         const result = await uploadToCloudinary(req.file.buffer);
@@ -93,7 +89,7 @@ router.post(
         name,
         description,
         price: Number(price),
-        stock: Number(stock) || 0,
+        stock: stock !== undefined ? Number(stock) : 0, // ✅ FIXED
         category,
         image,
         sizes,
@@ -101,6 +97,7 @@ router.post(
       });
 
       await newProduct.save();
+
       res.status(201).json({
         message: "Product created successfully",
         product: newProduct
@@ -138,7 +135,6 @@ router.put(
           : req.body.colors;
       }
 
-      // Night Suits validation
       if (category === "Night Suits") {
         if (sizes.length === 0 || colors.length === 0) {
           return res.status(400).json({
@@ -147,18 +143,20 @@ router.put(
         }
       }
 
-      // Upload new image if provided
       let updatedFields = {
         name,
         description,
         category,
-        stock: Number(stock),
         sizes,
         colors
       };
 
       if (price !== undefined) {
         updatedFields.price = Number(price);
+      }
+
+      if (stock !== undefined) {
+        updatedFields.stock = Number(stock); // ✅ FIXED
       }
 
       if (req.file) {

@@ -25,7 +25,7 @@ export default function EditProduct() {
     image: "",
     description: "",
     category: "Accessories",
-    stock: "",
+    stock: 0,
     sizes: [],
     colors: [],
   })
@@ -51,7 +51,7 @@ export default function EditProduct() {
         image: product.image,
         description: product.description,
         category: product.category || "Accessories",
-        stock: product.stock,
+        stock: product.stock ?? 0,
         sizes: product.sizes || [],
         colors: product.colors || [],
       })
@@ -68,11 +68,16 @@ export default function EditProduct() {
       .split(",")
       .map((c) => c.trim())
       .filter(Boolean)
+
     setFormData({ ...formData, colors })
   }
 
   const handleSizesChange = (e) => {
-    const selected = Array.from(e.target.selectedOptions, (option) => option.value)
+    const selected = Array.from(
+      e.target.selectedOptions,
+      (option) => option.value
+    )
+
     setFormData({ ...formData, sizes: selected })
   }
 
@@ -83,15 +88,20 @@ export default function EditProduct() {
 
     try {
       const payload = new FormData()
+
       payload.append("name", formData.name)
       payload.append("price", Number(formData.price))
-      payload.append("stock", Number(formData.stock))
+      payload.append("stock", Number(formData.stock || 0))
       payload.append("description", formData.description)
       payload.append("category", formData.category)
 
       if (formData.category === "Night Suits") {
-        formData.sizes.forEach((size) => payload.append("sizes[]", size))
-        formData.colors.forEach((color) => payload.append("colors[]", color))
+        formData.sizes.forEach((size) =>
+          payload.append("sizes[]", size)
+        )
+        formData.colors.forEach((color) =>
+          payload.append("colors[]", color)
+        )
       }
 
       if (imageFile) {
@@ -100,8 +110,13 @@ export default function EditProduct() {
 
       await apiService.updateProduct(id, payload, true)
       navigate("/admin/products")
+
     } catch (err) {
-      setError(err.response?.data?.error || err.message || "Failed to update product")
+      setError(
+        err.response?.data?.error ||
+          err.message ||
+          "Failed to update product"
+      )
     } finally {
       setIsLoading(false)
     }
@@ -109,10 +124,13 @@ export default function EditProduct() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+
       {!user ? (
         <div className="p-4 text-gray-600">Loading...</div>
       ) : (
         <div className="max-w-2xl mx-auto px-4 py-8">
+
+          {/* HEADER */}
           <div className="flex items-center space-x-4 mb-8">
             <Link to="/admin/products">
               <Button variant="ghost" size="sm">
@@ -120,44 +138,110 @@ export default function EditProduct() {
                 Back
               </Button>
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
+
+            <h1 className="text-3xl font-bold">
+              Edit Product
+            </h1>
           </div>
 
           <Card>
             <CardHeader>
               <CardTitle>Edit Product</CardTitle>
             </CardHeader>
+
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {error && <div className="text-red-600">{error}</div>}
 
-                <div className="space-y-2">
-                  <Label>Product Name *</Label>
-                  <Input name="name" value={formData.name} onChange={handleChange} required />
+                {error && (
+                  <p className="text-red-600">{error}</p>
+                )}
+
+                {/* NAME */}
+                <div>
+                  <Label>Product Name</Label>
+                  <Input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
 
+                {/* PRICE + STOCK */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Price *</Label>
-                    <Input name="price" type="number" value={formData.price} onChange={handleChange} required />
+
+                  <div>
+                    <Label>Price</Label>
+                    <Input
+                      name="price"
+                      type="number"
+                      value={formData.price}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
+
+                  {/* 🔥 STOCK CONTROL SECTION */}
                   <div className="space-y-2">
-                    <Label>Stock</Label>
-                    <Input name="stock" type="number" value={formData.stock} onChange={handleChange} />
+                    <Label>Stock Control</Label>
+
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                          setFormData({ ...formData, stock: 0 })
+                        }
+                      >
+                        Out of Stock
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                          setFormData({ ...formData, stock: 10 })
+                        }
+                      >
+                        Available
+                      </Button>
+                    </div>
+
+                    <Input
+                      name="stock"
+                      type="number"
+                      value={formData.stock}
+                      onChange={handleChange}
+                    />
                   </div>
+
                 </div>
 
-                <div className="space-y-2">
+                {/* IMAGE */}
+                <div>
                   <Label>Current Image</Label>
+
                   {formData.image && (
-                    <img src={formData.image} className="w-32 h-32 object-cover rounded mb-2" />
+                    <img
+                      src={formData.image}
+                      className="w-32 h-32 object-cover rounded mb-2"
+                    />
                   )}
+
                   <Label>Upload New Image</Label>
-                  <Input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setImageFile(e.target.files[0])
+                    }
+                  />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Category *</Label>
+                {/* CATEGORY */}
+                <div>
+                  <Label>Category</Label>
+
                   <select
                     name="category"
                     value={formData.category}
@@ -171,55 +255,75 @@ export default function EditProduct() {
                   </select>
                 </div>
 
-                {/* Night Suits fields */}
+                {/* NIGHT SUITS */}
                 {formData.category === "Night Suits" && (
                   <>
-                    <div className="space-y-2">
-                      <Label>Sizes *</Label>
+                    <div>
+                      <Label>Sizes</Label>
+
                       <select
                         multiple
                         value={formData.sizes}
                         onChange={handleSizesChange}
                         className="border p-2 rounded w-full"
-                        required
                       >
                         <option value="Medium">Medium</option>
                         <option value="Large">Large</option>
-                        <option value="Extra Large">Extra Large</option>
+                        <option value="Extra Large">
+                          Extra Large
+                        </option>
                       </select>
-                      <p className="text-sm text-gray-500">Hold Ctrl (Windows) or Cmd (Mac) to select multiple sizes</p>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label>Colors *</Label>
+                    <div>
+                      <Label>Colors</Label>
+
                       <Input
                         value={formData.colors.join(", ")}
                         onChange={handleColorsChange}
                         placeholder="Red, Blue, Green"
-                        required
                       />
                     </div>
                   </>
                 )}
 
-                <div className="space-y-2">
+                {/* DESCRIPTION */}
+                <div>
                   <Label>Description</Label>
-                  <Textarea name="description" value={formData.description} onChange={handleChange} />
+
+                  <Textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                  />
                 </div>
 
+                {/* BUTTONS */}
                 <div className="flex space-x-4">
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading ? "Saving..." : "Update Product"}
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="flex-1"
+                  >
+                    {isLoading
+                      ? "Saving..."
+                      : "Update Product"}
                   </Button>
+
                   <Link to="/admin/products">
-                    <Button variant="outline">Cancel</Button>
+                    <Button variant="outline">
+                      Cancel
+                    </Button>
                   </Link>
                 </div>
+
               </form>
             </CardContent>
           </Card>
+
         </div>
       )}
+
     </div>
   )
 }

@@ -14,18 +14,15 @@ import { Label } from "../components/ui/label"
 export default function HomePage() {
   const { addToCart, cartItems } = useCart()
   const { user, logout } = useAuth()
+
   const [products, setProducts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // Category State
   const [selectedCategory, setSelectedCategory] = useState("Accessories")
-
-  // Categories List
   const categories = ["Accessories", "Clothing", "Night Suits", "Watches"]
 
-  // Track selected size/color per product
   const [selectedOptions, setSelectedOptions] = useState({})
 
   useEffect(() => {
@@ -44,7 +41,6 @@ export default function HomePage() {
     }
   }
 
-  // Handlers for Night Suits selections
   const handleSizeChange = (productId, size) => {
     setSelectedOptions(prev => ({
       ...prev,
@@ -59,9 +55,9 @@ export default function HomePage() {
     }))
   }
 
-  // Filter products by selected category
   const filteredProducts = products.filter(
-    (product) => product.category?.toLowerCase() === selectedCategory.toLowerCase()
+    (product) =>
+      product.category?.toLowerCase() === selectedCategory.toLowerCase()
   )
 
   const formatCurrency = (amount) => {
@@ -79,26 +75,38 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* MAIN NAVBAR */}
+
+      {/* NAVBAR */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
+
             <Link to="/" className="text-2xl font-bold text-gray-900">
               Tatheer Fatima Collection
             </Link>
-            {/* Desktop Menu */}
+
             <div className="hidden md:flex items-center space-x-4">
+
               {user ? (
                 <div className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
+                  <span className="text-sm text-gray-600">
+                    Welcome, {user.name}!
+                  </span>
+
                   {user.role === "admin" && (
                     <Link to="/admin">
-                      <Button variant="ghost" size="sm">Admin Panel</Button>
+                      <Button variant="ghost" size="sm">
+                        Admin Panel
+                      </Button>
                     </Link>
                   )}
+
                   <Link to="/my-orders">
-                    <Button variant="ghost" size="sm">My Orders</Button>
+                    <Button variant="ghost" size="sm">
+                      My Orders
+                    </Button>
                   </Link>
+
                   <Button variant="ghost" size="sm" onClick={logout}>
                     Logout
                   </Button>
@@ -106,14 +114,17 @@ export default function HomePage() {
               ) : (
                 <Link to="/login">
                   <Button variant="ghost" size="sm">
-                    <User className="h-4 w-4 mr-2" /> Login
+                    <User className="h-4 w-4 mr-2" />
+                    Login
                   </Button>
                 </Link>
               )}
+
               <Link to="/cart">
                 <Button variant="outline" size="sm" className="relative bg-transparent">
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   Cart
+
                   {totalCartQuantity > 0 && (
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {totalCartQuantity}
@@ -122,123 +133,83 @@ export default function HomePage() {
                 </Button>
               </Link>
             </div>
-            {/* Mobile Menu Toggle */}
+
+            {/* MOBILE MENU */}
             <button
               className="md:hidden p-2 rounded hover:bg-gray-100"
               onClick={() => setMenuOpen(!menuOpen)}
             >
-              {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {menuOpen ? <X /> : <Menu />}
             </button>
           </div>
         </div>
-        {/* Mobile Menu */}
-        {menuOpen && (
-          <div className="md:hidden bg-white border-t shadow-sm">
-            <div className="px-4 py-4 space-y-2">
-              {user ? (
-                <>
-                  <p className="text-sm text-gray-600">Welcome, {user.name}!</p>
-                  {user.role === "admin" && (
-                    <Link to="/admin">
-                      <Button variant="ghost" size="sm" className="w-full text-left">
-                        Admin Panel
-                      </Button>
-                    </Link>
-                  )}
-                  <Link to="/my-orders">
-                    <Button variant="ghost" size="sm" className="w-full text-left">
-                      My Orders
-                    </Button>
-                  </Link>
-                  <Button variant="ghost" size="sm" className="w-full text-left" onClick={logout}>
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <Link to="/login">
-                  <Button variant="ghost" size="sm" className="w-full text-left">
-                    <User className="h-4 w-4 mr-2" /> Login
-                  </Button>
-                </Link>
-              )}
-              <Link to="/cart">
-                <Button variant="outline" size="sm" className="w-full text-left relative bg-transparent">
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  Cart
-                  {totalCartQuantity > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {totalCartQuantity}
-                    </span>
-                  )}
-                </Button>
-              </Link>
-            </div>
-          </div>
-        )}
       </nav>
 
-      {/* CATEGORY NAVBAR */}
+      {/* CATEGORY */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-4 overflow-x-auto py-3">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${
-                  selectedCategory === cat
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+        <div className="max-w-7xl mx-auto px-4 py-3 flex gap-4 overflow-x-auto">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                selectedCategory === cat
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* HERO */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            Welcome to Tatheer Fatima Collection
-          </h1>
-          <p className="text-xl md:text-2xl mb-8">
-            Discover amazing products at unbeatable prices
-          </p>
-        </div>
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20 text-center">
+        <h1 className="text-4xl font-bold mb-2">
+          Welcome to Tatheer Fatima Collection
+        </h1>
+        <p className="text-xl">
+          Discover amazing products at unbeatable prices
+        </p>
       </div>
 
       {/* PRODUCTS */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-          Featured Products
-        </h2>
+      <div className="max-w-7xl mx-auto px-4 py-12">
 
         {isLoading ? (
-          <div className="text-center py-12">Loading products...</div>
+          <p className="text-center">Loading...</p>
         ) : error ? (
-          <div className="text-center py-12 text-red-600">{error}</div>
+          <p className="text-red-600 text-center">{error}</p>
         ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-12">
-            No products found in {selectedCategory}
-          </div>
+          <p className="text-center">No products found</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
             {filteredProducts.map((product) => {
-              const cartItem = cartItems.find((item) => item.id === product._id)
+              const cartItem = cartItems.find((i) => i.id === product._id)
               const quantity = cartItem ? cartItem.quantity : 0
 
               const isNightSuit = product.category === "Night Suits"
-              const selectedSize = selectedOptions[product._id]?.size || (isNightSuit ? product.sizes[0] || "" : "")
-              const selectedColor = selectedOptions[product._id]?.color || (isNightSuit ? product.colors[0] || "" : "")
+
+              const selectedSize =
+                selectedOptions[product._id]?.size ||
+                (isNightSuit ? product.sizes?.[0] || "" : "")
+
+              const selectedColor =
+                selectedOptions[product._id]?.color ||
+                (isNightSuit ? product.colors?.[0] || "" : "")
+
+              const isOutOfStock = product.stock === 0
 
               const handleAddToCart = () => {
+                if (isOutOfStock) return
+
                 if (isNightSuit && (!selectedSize || !selectedColor)) {
                   alert("Please select size and color")
                   return
                 }
+
                 addToCart({
                   id: product._id,
                   name: product.name,
@@ -251,54 +222,103 @@ export default function HomePage() {
 
               return (
                 <Card key={product._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+
+                  {/* IMAGE */}
                   <div className="aspect-square relative">
+
+                    {isOutOfStock && (
+                      <div className="absolute top-2 left-2 bg-red-600 text-white px-3 py-1 text-sm font-bold rounded z-10">
+                        Out of Stock
+                      </div>
+                    )}
+
                     <img
                       src={product.image || "https://via.placeholder.com/300"}
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      className={`w-full h-full object-cover ${
+                        isOutOfStock ? "opacity-60" : ""
+                      }`}
                     />
                   </div>
 
                   <CardContent className="p-4">
-                    <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                    <p className="text-2xl font-bold text-blue-600">{formatCurrency(product.price)}</p>
+                    <h3 className="font-semibold text-lg">{product.name}</h3>
 
+                    <p className="text-2xl font-bold text-blue-600">
+                      {formatCurrency(product.price)}
+                    </p>
+
+                    {isOutOfStock && (
+                      <p className="text-red-500 font-semibold mt-1">
+                        Currently unavailable
+                      </p>
+                    )}
+
+                    {/* NIGHT SUITS */}
                     {isNightSuit && (
                       <div className="space-y-2 mt-2">
+
                         <div>
                           <Label>Size</Label>
                           <select
                             value={selectedSize}
-                            onChange={e => handleSizeChange(product._id, e.target.value)}
+                            onChange={(e) =>
+                              handleSizeChange(product._id, e.target.value)
+                            }
+                            disabled={isOutOfStock}
                             className="border p-1 rounded w-full"
                           >
-                            {product.sizes.map((s) => <option key={s} value={s}>{s}</option>)}
+                            {product.sizes?.map((s) => (
+                              <option key={s} value={s}>{s}</option>
+                            ))}
                           </select>
                         </div>
+
                         <div>
                           <Label>Color</Label>
                           <select
                             value={selectedColor}
-                            onChange={e => handleColorChange(product._id, e.target.value)}
+                            onChange={(e) =>
+                              handleColorChange(product._id, e.target.value)
+                            }
+                            disabled={isOutOfStock}
                             className="border p-1 rounded w-full"
                           >
-                            {product.colors.map((c) => <option key={c} value={c}>{c}</option>)}
+                            {product.colors?.map((c) => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
                           </select>
                         </div>
+
                       </div>
                     )}
                   </CardContent>
 
                   <CardFooter className="p-4 pt-0">
-                    <Button onClick={handleAddToCart} className="w-full">
-                      {quantity > 0 ? `Added (${quantity})` : "Add to Cart"}
+                    <Button
+                      onClick={handleAddToCart}
+                      disabled={isOutOfStock}
+                      className={`w-full ${
+                        isOutOfStock
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      {isOutOfStock
+                        ? "Out of Stock"
+                        : quantity > 0
+                        ? `Added (${quantity})`
+                        : "Add to Cart"}
                     </Button>
                   </CardFooter>
+
                 </Card>
               )
             })}
+
           </div>
         )}
+
       </div>
 
       <Footer />

@@ -48,7 +48,16 @@ const productSchema = new mongoose.Schema({
     default: []
   }
 
-}, { timestamps: true });
+}, { 
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+// ✅ Virtual field for frontend use
+productSchema.virtual("isOutOfStock").get(function () {
+  return this.stock === 0;
+});
 
 const Product =
   mongoose.models.Product || mongoose.model("Product", productSchema);

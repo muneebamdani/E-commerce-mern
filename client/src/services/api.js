@@ -37,21 +37,28 @@ export const apiService = {
   },
 
   createProduct: async (productData, isFormData = false) => {
-    const config = {};
+    try {
+      const config = {};
 
-    // FormData support (no manual headers needed except this)
-    if (isFormData) {
-      config.headers = { "Content-Type": "multipart/form-data" };
+      // ✅ important for image upload + stock support
+      if (isFormData) {
+        config.headers = { "Content-Type": "multipart/form-data" };
+      }
+
+      const res = await api.post("/products", productData, config);
+      return res.data;
+    } catch (err) {
+      throw new Error(
+        err.response?.data?.error || "Failed to create product"
+      );
     }
-
-    const res = await api.post("/products", productData, config);
-    return res.data;
   },
 
   updateProduct: async (id, updatedData, isFormData = false) => {
     try {
       const config = {};
 
+      // ✅ supports image + stock updates
       if (isFormData) {
         config.headers = { "Content-Type": "multipart/form-data" };
       }
@@ -60,14 +67,20 @@ export const apiService = {
       return res.data;
     } catch (err) {
       throw new Error(
-        err.response?.data?.message || "Failed to update product"
+        err.response?.data?.error || "Failed to update product"
       );
     }
   },
 
   deleteProduct: async (id) => {
-    const res = await api.delete(`/products/${id}`);
-    return res.data;
+    try {
+      const res = await api.delete(`/products/${id}`);
+      return res.data;
+    } catch (err) {
+      throw new Error(
+        err.response?.data?.error || "Failed to delete product"
+      );
+    }
   },
 
   // -------------------- ORDERS --------------------
@@ -77,13 +90,25 @@ export const apiService = {
   },
 
   createOrder: async (orderData) => {
-    const res = await api.post("/orders", orderData);
-    return res.data;
+    try {
+      const res = await api.post("/orders", orderData);
+      return res.data;
+    } catch (err) {
+      throw new Error(
+        err.response?.data?.error || "Order failed"
+      );
+    }
   },
 
   updateOrderStatus: async (orderId, status) => {
-    const res = await api.put(`/orders/${orderId}/status`, { status });
-    return res.data;
+    try {
+      const res = await api.put(`/orders/${orderId}/status`, { status });
+      return res.data;
+    } catch (err) {
+      throw new Error(
+        err.response?.data?.error || "Failed to update order"
+      );
+    }
   },
 
   // -------------------- CART --------------------
