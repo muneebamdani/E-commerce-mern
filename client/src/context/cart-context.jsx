@@ -21,27 +21,24 @@ export function CartProvider({ children }) {
   }, [cartItems])
 
   // Add product to cart
-  const addToCart = (product) => {
-    setCartItems((prev) => {
-      // Check if same product with same size & color exists
-      const existingIndex = prev.findIndex(
-        (item) =>
-          item.id === product.id &&
-          item.size === (product.size || "") &&
-          item.color === (product.color || "")
-      )
+const addToCart = (product) => {
+  setCartItems((prev) => {
+    const existingIndex = prev.findIndex(
+      (item) =>
+        item.id === product.id &&
+        item.size === (product.size || "") &&
+        item.color === (product.color || "")
+    )
 
-      if (existingIndex !== -1) {
-        // Increment quantity if same product + same options
-        const updated = [...prev]
-        updated[existingIndex].quantity += 1
-        return updated
-      }
+    if (existingIndex !== -1) {
+      const updated = [...prev]
+      updated[existingIndex].quantity += 1
+      return updated
+    }
 
-      // Otherwise, add as new item
-      return [...prev, { ...product, quantity: 1 }]
-    })
-  }
+    return [...prev, { ...product, quantity: 1 }]
+  })
+}
 
   // Remove product from cart
   const removeFromCart = (product) => {
