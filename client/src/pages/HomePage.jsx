@@ -36,14 +36,14 @@ export default function HomePage() {
     }
   }
 
-  // ✅ FIXED PRODUCT COUNT (ONLY FIX)
+  // ✅ FIXED: consistent _id matching
   const cartCountForProduct = (productId) => {
     const item = cartItems.find((i) => i.id === productId)
-    return item ? item.quantity : 0
+    return item?.quantity || 0
   }
 
   const totalCartQuantity = cartItems.reduce(
-    (total, item) => total + item.quantity,
+    (total, item) => total + (item.quantity || 0),
     0
   )
 
@@ -63,7 +63,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50">
 
-      {/* NAVBAR (UNCHANGED STRUCTURE) */}
+      {/* NAVBAR */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -73,7 +73,6 @@ export default function HomePage() {
               Tatheer Fatima Collection
             </Link>
 
-            {/* DESKTOP */}
             <div className="hidden md:flex items-center space-x-4">
 
               {user ? (
@@ -95,6 +94,15 @@ export default function HomePage() {
                     </Button>
                   </Link>
 
+                  {/* 🔥 FIXED ADMIN BUTTON */}
+                  {user?.role?.toLowerCase() === "admin" && (
+                    <Link to="/admin">
+                      <Button variant="ghost" size="sm">
+                        Admin Panel
+                      </Button>
+                    </Link>
+                  )}
+
                   <Button variant="ghost" size="sm" onClick={logout}>
                     Logout
                   </Button>
@@ -110,7 +118,6 @@ export default function HomePage() {
 
             </div>
 
-            {/* MOBILE TOGGLE (UNCHANGED) */}
             <button
               className="md:hidden p-2 rounded hover:bg-gray-100"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -122,7 +129,7 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* MOBILE MENU (UNCHANGED) */}
+      {/* MOBILE */}
       {menuOpen && (
         <div className="md:hidden bg-white shadow-lg border-b px-4 py-4 space-y-3">
 
@@ -131,6 +138,15 @@ export default function HomePage() {
               <p className="text-sm text-gray-600">
                 Welcome, {user.name}!
               </p>
+
+              {/* 🔥 ADMIN MOBILE BUTTON FIXED */}
+              {user?.role?.toLowerCase() === "admin" && (
+                <Link to="/admin" onClick={() => setMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start">
+                    Admin Panel
+                  </Button>
+                </Link>
+              )}
 
               <Button
                 variant="ghost"
@@ -230,7 +246,7 @@ export default function HomePage() {
                     <Button
                       onClick={() =>
                         addToCart({
-                          id: product._id,
+                          id: product._id, // ✅ FIXED
                           name: product.name,
                           price: product.price,
                           image: product.image,
