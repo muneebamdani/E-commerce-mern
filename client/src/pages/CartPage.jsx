@@ -31,8 +31,11 @@ export default function CartPage() {
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
+
+        {/* NAVBAR (EMPTY CART) */}
         <nav className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
+
             <Link to="/" className="text-2xl font-bold">
               Tatheer Fatima Collection
             </Link>
@@ -49,12 +52,14 @@ export default function CartPage() {
                 <Button variant="ghost" size="sm">Login</Button>
               </Link>
             )}
+
           </div>
         </nav>
 
         <div className="text-center py-20">
           <h1 className="text-3xl font-bold">Your cart is empty</h1>
           <p className="text-gray-600 mt-2">Add some products</p>
+
           <Link to="/">
             <Button className="mt-6">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -115,22 +120,42 @@ export default function CartPage() {
       {/* NAVBAR */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
+
+          {/* LEFT */}
           <Link to="/" className="text-2xl font-bold">
             Tatheer Fatima Collection
           </Link>
 
-          {user ? (
-            <div className="flex gap-4 items-center">
-              <span>Welcome, {user.name}</span>
-              <Button variant="ghost" size="sm" onClick={logout}>
-                Logout
-              </Button>
-            </div>
-          ) : (
-            <Link to="/login">
-              <Button variant="ghost" size="sm">Login</Button>
-            </Link>
-          )}
+          {/* RIGHT */}
+          <div className="flex items-center gap-3">
+
+            {/* ✅ CONTINUE SHOPPING BUTTON */}
+            {cartItems.length > 0 && (
+              <Link to="/">
+                <Button variant="outline" size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Continue Shopping
+                </Button>
+              </Link>
+            )}
+
+            {user ? (
+              <div className="flex gap-3 items-center">
+                <span className="hidden sm:block">
+                  Welcome, {user.name}
+                </span>
+
+                <Button variant="ghost" size="sm" onClick={logout}>
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Link to="/login">
+                <Button variant="ghost" size="sm">Login</Button>
+              </Link>
+            )}
+
+          </div>
         </div>
       </nav>
 
@@ -161,7 +186,6 @@ export default function CartPage() {
                 <Card key={item.id}>
                   <CardContent className="p-4">
 
-                    {/* ✅ RESPONSIVE FIX */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
                       {/* LEFT */}
@@ -188,8 +212,8 @@ export default function CartPage() {
                         </div>
                       </div>
 
-                      {/* RIGHT CONTROLS */}
-                      <div className="flex items-center justify-between sm:justify-end gap-2 flex-wrap">
+                      {/* RIGHT */}
+                      <div className="flex items-center gap-2 flex-wrap">
 
                         <Button
                           size="sm"
@@ -252,7 +276,6 @@ export default function CartPage() {
                 <span>Rs {getTotalPrice()}</span>
               </div>
 
-              {/* ✅ DELIVERY MESSAGE */}
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Delivery Charges</span>
                 <span>Depends on location</span>
@@ -275,9 +298,7 @@ export default function CartPage() {
                 disabled={!user || isPlacingOrder || hasInvalidItems}
                 onClick={handlePlaceOrder}
               >
-                {isPlacingOrder
-                  ? "Placing Order..."
-                  : "Place Order"}
+                {isPlacingOrder ? "Placing Order..." : "Place Order"}
               </Button>
             </CardFooter>
 
