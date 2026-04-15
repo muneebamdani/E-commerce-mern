@@ -146,7 +146,7 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* ✅ MOBILE MENU */}
+      {/* MOBILE MENU */}
       {menuOpen && (
         <div className="md:hidden bg-white shadow-lg border-b px-4 py-4 space-y-3">
 
@@ -155,14 +155,6 @@ export default function HomePage() {
               <p className="text-sm text-gray-600">
                 Welcome, {user.name}!
               </p>
-
-              {user.role === "admin" && (
-                <Link to="/admin" onClick={() => setMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start">
-                    Admin Panel
-                  </Button>
-                </Link>
-              )}
 
               <Link to="/my-orders" onClick={() => setMenuOpen(false)}>
                 <Button variant="ghost" className="w-full justify-start">
@@ -238,7 +230,9 @@ export default function HomePage() {
           <p className="text-center">No products found</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
             {filteredProducts.map((product) => {
+
               const cartItem = cartItems.find((i) => i.id === product._id)
               const quantity = cartItem ? cartItem.quantity : 0
 
@@ -274,12 +268,14 @@ export default function HomePage() {
 
               return (
                 <Card key={product._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+
                   <div className="aspect-square relative">
                     {isOutOfStock && (
                       <div className="absolute top-2 left-2 bg-red-600 text-white px-3 py-1 text-sm font-bold rounded z-10">
                         Out of Stock
                       </div>
                     )}
+
                     <img
                       src={product.image || "https://via.placeholder.com/300"}
                       alt={product.name}
@@ -295,13 +291,26 @@ export default function HomePage() {
                   </CardContent>
 
                   <CardFooter className="p-4 pt-0">
-                    <Button onClick={handleAddToCart} disabled={isOutOfStock} className="w-full">
-                      {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+
+                    {/* 🔥 UPDATED BUTTON */}
+                    <Button
+                      onClick={handleAddToCart}
+                      disabled={isOutOfStock}
+                      className="w-full"
+                    >
+                      {isOutOfStock
+                        ? "Out of Stock"
+                        : quantity > 0
+                        ? `Add to Cart (${quantity})`
+                        : "Add to Cart"}
                     </Button>
+
                   </CardFooter>
+
                 </Card>
               )
             })}
+
           </div>
         )}
       </div>
