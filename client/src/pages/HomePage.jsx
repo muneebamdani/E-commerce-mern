@@ -13,23 +13,16 @@ export default function HomePage() {
   const { user, logout } = useAuth()
 
   const [products, setProducts] = useState([])
-  const [categories, setCategories] = useState([
-    "Accessories",
-    "Clothing",
-    "Night Suits",
-    "Watches"
-  ])
-
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
   const [menuOpen, setMenuOpen] = useState(false)
 
   const [selectedCategory, setSelectedCategory] = useState("Accessories")
-  const [selectedOptions, setSelectedOptions] = useState({})
+
+  const categories = ["Accessories", "Clothing", "Night Suits", "Watches"]
 
   useEffect(() => {
     fetchProducts()
-    fetchCategories()
   }, [])
 
   const fetchProducts = async () => {
@@ -37,30 +30,27 @@ export default function HomePage() {
       const data = await apiService.getProducts()
       setProducts(data || [])
     } catch (err) {
-      console.error(err)
-      setError("Failed to load products")
+      console.error("Failed to load products:", err)
+      setError("Failed to load products. Please try again later.")
     } finally {
       setIsLoading(false)
     }
   }
 
-  const fetchCategories = async () => {
-    try {
-      const res = await apiService.getCategories()
-
-      // ONLY merge if backend categories exist
-      if (res && res.length > 0) {
-        const names = res.map(c => c.name)
-        setCategories(names)
-      }
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
   const filteredProducts = products.filter(
-    (product) => product.category === selectedCategory
+    (product) =>
+      product.category?.toLowerCase() === selectedCategory.toLowerCase()
   )
+
+  const totalCartQuantity = cartItems.reduce(
+    (total, item) => total + (item.quantity || 1),
+    0
+  )
+
+  const cartCountForProduct = (productId) => {
+    const item = cartItems.find((i) => i.id === productId)
+    return item ? item.quantity : 0
+  }
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-PK", {
@@ -70,15 +60,10 @@ export default function HomePage() {
     }).format(amount)
   }
 
-  const totalCartQuantity = cartItems.reduce(
-    (total, item) => total + (item.quantity || 1),
-    0
-  )
-
   return (
     <div className="min-h-screen bg-gray-50">
 
-      {/* NAVBAR (UNCHANGED) */}
+      {/* NAVBAR */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -88,10 +73,12 @@ export default function HomePage() {
               Tatheer Fatima Collection
             </Link>
 
+            {/* DESKTOP MENU */}
             <div className="hidden md:flex items-center space-x-4">
 
               {user ? (
-                <>
+                <div className="flex items-center space-x-4">
+
                   <span className="text-sm text-gray-600">
                     Welcome, {user.name}!
                   </span>
@@ -113,7 +100,8 @@ export default function HomePage() {
                   <Button variant="ghost" size="sm" onClick={logout}>
                     Logout
                   </Button>
-                </>
+
+                </div>
               ) : (
                 <Link to="/login">
                   <Button variant="ghost" size="sm">
@@ -123,17 +111,25 @@ export default function HomePage() {
                 </Link>
               )}
 
+              {/* CART RESTORED */}
               <Link to="/cart">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="relative bg-transparent">
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   Cart
+
+                  {totalCartQuantity > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {totalCartQuantity}
+                    </span>
+                  )}
                 </Button>
               </Link>
 
             </div>
 
+            {/* MOBILE BUTTON */}
             <button
-              className="md:hidden"
+              className="md:hidden p-2 rounded hover:bg-gray-100"
               onClick={() => setMenuOpen(!menuOpen)}
             >
               {menuOpen ? <X /> : <Menu />}
@@ -143,20 +139,25 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* MOBILE MENU (UNCHANGED LOGIC FIXED) */}
+      {/* MOBILE MENU */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-b px-4 py-3">
+        <div className="md:hidden bg-white shadow-lg border-b px-4 py-4 space-y-3">
 
           {user ? (
             <>
-              <p className="text-sm">Welcome, {user.name}</p>
+              <p className="text-sm text-gray-600">
+                Welcome, {user.name}!
+              </p>
 
               <Link to="/my-orders" onClick={() => setMenuOpen(false)}>
-                <Button className="w-full">My Orders</Button>
+                <Button variant="ghost" className="w-full justify-start">
+                  My Orders
+                </Button>
               </Link>
 
               <Button
-                className="w-full mt-2"
+                variant="ghost"
+                className="w-full justify-start"
                 onClick={() => {
                   logout()
                   setMenuOpen(false)
@@ -167,14 +168,24 @@ export default function HomePage() {
             </>
           ) : (
             <Link to="/login" onClick={() => setMenuOpen(false)}>
-              <Button className="w-full">Login</Button>
+              <Button variant="ghost" className="w-full justify-start">
+                Login
+              </Button>
             </Link>
           )}
+
+          {/* CART RESTORED MOBILE */}
+          <Link to="/cart" onClick={() => setMenuOpen(false)}>
+            <Button variant="outline" className="w-full justify-start">
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Cart ({totalCartQuantity})
+            </Button>
+          </Link>
 
         </div>
       )}
 
-      {/* CATEGORY */}
+      {/* CATEGORY BAR */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-3 flex gap-4 overflow-x-auto">
 
@@ -197,51 +208,79 @@ export default function HomePage() {
 
       {/* HERO */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20 text-center">
-        <h1 className="text-4xl font-bold">
+        <h1 className="text-4xl font-bold mb-2">
           Welcome to Tatheer Fatima Collection
         </h1>
+        <p className="text-xl">
+          Discover amazing products at unbeatable prices
+        </p>
       </div>
 
       {/* PRODUCTS */}
       <div className="max-w-7xl mx-auto px-4 py-12">
 
         {isLoading ? (
-          <p>Loading...</p>
+          <p className="text-center">Loading...</p>
         ) : error ? (
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-600 text-center">{error}</p>
         ) : filteredProducts.length === 0 ? (
-          <p>No products found</p>
+          <p className="text-center">No products found</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            {filteredProducts.map((product) => (
-              <Card key={product._id}>
-                <img src={product.image} className="h-60 w-full object-cover" />
+            {filteredProducts.map((product) => {
+              const quantity = cartCountForProduct(product._id)
+              const isOutOfStock = product.stock === 0
 
-                <CardContent>
-                  <h3>{product.name}</h3>
-                  <p className="text-blue-600 font-bold">
-                    {formatCurrency(product.price)}
-                  </p>
-                </CardContent>
+              return (
+                <Card
+                  key={product._id}
+                  className="overflow-hidden relative"
+                >
 
-                <CardFooter>
-                  <Button
-                    onClick={() =>
-                      addToCart({
-                        id: product._id,
-                        name: product.name,
-                        price: product.price,
-                        image: product.image,
-                      })
-                    }
-                    className="w-full"
-                  >
-                    Add to Cart
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+                  {/* IN CART BADGE */}
+                  {quantity > 0 && (
+                    <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                      In Cart: {quantity}
+                    </div>
+                  )}
+
+                  <img
+                    src={product.image}
+                    className="w-full h-60 object-cover"
+                  />
+
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold">{product.name}</h3>
+                    <p className="text-blue-600 font-bold">
+                      {formatCurrency(product.price)}
+                    </p>
+                  </CardContent>
+
+                  <CardFooter className="p-4 pt-0">
+                    <Button
+                      onClick={() =>
+                        addToCart({
+                          id: product._id,
+                          name: product.name,
+                          price: product.price,
+                          image: product.image,
+                        })
+                      }
+                      disabled={isOutOfStock}
+                      className="w-full"
+                    >
+                      {isOutOfStock
+                        ? "Out of Stock"
+                        : quantity > 0
+                        ? `Add More (${quantity})`
+                        : "Add to Cart"}
+                    </Button>
+                  </CardFooter>
+
+                </Card>
+              )
+            })}
 
           </div>
         )}
