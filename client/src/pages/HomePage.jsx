@@ -134,16 +134,69 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* MOBILE MENU */}
+            {/* MOBILE BUTTON */}
             <button
               className="md:hidden p-2 rounded hover:bg-gray-100"
               onClick={() => setMenuOpen(!menuOpen)}
             >
               {menuOpen ? <X /> : <Menu />}
             </button>
+
           </div>
         </div>
       </nav>
+
+      {/* ✅ MOBILE MENU */}
+      {menuOpen && (
+        <div className="md:hidden bg-white shadow-lg border-b px-4 py-4 space-y-3">
+
+          {user ? (
+            <>
+              <p className="text-sm text-gray-600">
+                Welcome, {user.name}!
+              </p>
+
+              {user.role === "admin" && (
+                <Link to="/admin" onClick={() => setMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start">
+                    Admin Panel
+                  </Button>
+                </Link>
+              )}
+
+              <Link to="/my-orders" onClick={() => setMenuOpen(false)}>
+                <Button variant="ghost" className="w-full justify-start">
+                  My Orders
+                </Button>
+              </Link>
+
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => {
+                  logout()
+                  setMenuOpen(false)
+                }}
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <Link to="/login" onClick={() => setMenuOpen(false)}>
+              <Button variant="ghost" className="w-full justify-start">
+                Login
+              </Button>
+            </Link>
+          )}
+
+          <Link to="/cart" onClick={() => setMenuOpen(false)}>
+            <Button variant="outline" className="w-full justify-start">
+              Cart ({totalCartQuantity})
+            </Button>
+          </Link>
+
+        </div>
+      )}
 
       {/* CATEGORY */}
       <div className="bg-white border-b">
@@ -185,7 +238,6 @@ export default function HomePage() {
           <p className="text-center">No products found</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
             {filteredProducts.map((product) => {
               const cartItem = cartItems.find((i) => i.id === product._id)
               const quantity = cartItem ? cartItem.quantity : 0
@@ -222,103 +274,36 @@ export default function HomePage() {
 
               return (
                 <Card key={product._id} className="overflow-hidden hover:shadow-lg transition-shadow">
-
-                  {/* IMAGE */}
                   <div className="aspect-square relative">
-
                     {isOutOfStock && (
                       <div className="absolute top-2 left-2 bg-red-600 text-white px-3 py-1 text-sm font-bold rounded z-10">
                         Out of Stock
                       </div>
                     )}
-
                     <img
                       src={product.image || "https://via.placeholder.com/300"}
                       alt={product.name}
-                      className={`w-full h-full object-cover ${
-                        isOutOfStock ? "opacity-60" : ""
-                      }`}
+                      className={`w-full h-full object-cover ${isOutOfStock ? "opacity-60" : ""}`}
                     />
                   </div>
 
                   <CardContent className="p-4">
                     <h3 className="font-semibold text-lg">{product.name}</h3>
-
                     <p className="text-2xl font-bold text-blue-600">
                       {formatCurrency(product.price)}
                     </p>
-
-                    {isOutOfStock && (
-                      <p className="text-red-500 font-semibold mt-1">
-                        Currently unavailable
-                      </p>
-                    )}
-
-                    {/* NIGHT SUITS */}
-                    {isNightSuit && (
-                      <div className="space-y-2 mt-2">
-
-                        <div>
-                          <Label>Size</Label>
-                          <select
-                            value={selectedSize}
-                            onChange={(e) =>
-                              handleSizeChange(product._id, e.target.value)
-                            }
-                            disabled={isOutOfStock}
-                            className="border p-1 rounded w-full"
-                          >
-                            {product.sizes?.map((s) => (
-                              <option key={s} value={s}>{s}</option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div>
-                          <Label>Color</Label>
-                          <select
-                            value={selectedColor}
-                            onChange={(e) =>
-                              handleColorChange(product._id, e.target.value)
-                            }
-                            disabled={isOutOfStock}
-                            className="border p-1 rounded w-full"
-                          >
-                            {product.colors?.map((c) => (
-                              <option key={c} value={c}>{c}</option>
-                            ))}
-                          </select>
-                        </div>
-
-                      </div>
-                    )}
                   </CardContent>
 
                   <CardFooter className="p-4 pt-0">
-                    <Button
-                      onClick={handleAddToCart}
-                      disabled={isOutOfStock}
-                      className={`w-full ${
-                        isOutOfStock
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : ""
-                      }`}
-                    >
-                      {isOutOfStock
-                        ? "Out of Stock"
-                        : quantity > 0
-                        ? `Added (${quantity})`
-                        : "Add to Cart"}
+                    <Button onClick={handleAddToCart} disabled={isOutOfStock} className="w-full">
+                      {isOutOfStock ? "Out of Stock" : "Add to Cart"}
                     </Button>
                   </CardFooter>
-
                 </Card>
               )
             })}
-
           </div>
         )}
-
       </div>
 
       <Footer />
