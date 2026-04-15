@@ -22,7 +22,6 @@ export default function CartPage() {
   const navigate = useNavigate()
   const [isPlacingOrder, setIsPlacingOrder] = useState(false)
 
-  // 🚨 BLOCK ORDER IF ANY ITEM IS OUT OF STOCK
   const hasInvalidItems = cartItems.some(
     (item) =>
       item.stock !== undefined &&
@@ -73,7 +72,6 @@ export default function CartPage() {
       return
     }
 
-    // 🚨 FINAL FRONTEND CHECK
     if (hasInvalidItems) {
       alert("Some items exceed available stock. Please update cart.")
       return
@@ -141,7 +139,6 @@ export default function CartPage() {
 
         <h1 className="text-3xl font-bold mb-6">Shopping Cart</h1>
 
-        {/* WARNING */}
         {hasInvalidItems && (
           <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
             Some items exceed available stock ⚠️
@@ -162,65 +159,70 @@ export default function CartPage() {
 
               return (
                 <Card key={item.id}>
-                  <CardContent className="flex items-center justify-between p-4">
+                  <CardContent className="p-4">
 
-                    {/* IMAGE */}
-                    <img
-                      src={item.image}
-                      className={`w-20 h-20 rounded ${
-                        isOutOfStock ? "opacity-50" : ""
-                      }`}
-                    />
+                    {/* ✅ RESPONSIVE FIX */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
-                    {/* INFO */}
-                    <div className="flex-1 ml-4">
-                      <h2 className="font-semibold">{item.name}</h2>
+                      {/* LEFT */}
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={item.image}
+                          className={`w-20 h-20 rounded ${
+                            isOutOfStock ? "opacity-50" : ""
+                          }`}
+                        />
 
-                      {isOutOfStock && (
-                        <p className="text-red-500 text-sm">
-                          Out of Stock
-                        </p>
-                      )}
+                        <div>
+                          <h2 className="font-semibold">{item.name}</h2>
 
-                      {item.size && <p>Size: {item.size}</p>}
-                      {item.color && <p>Color: {item.color}</p>}
-                      <p>Rs {item.price}</p>
-                    </div>
+                          {isOutOfStock && (
+                            <p className="text-red-500 text-sm">
+                              Out of Stock
+                            </p>
+                          )}
 
-                    {/* CONTROLS */}
-                    <div className="flex items-center gap-2">
+                          {item.size && <p>Size: {item.size}</p>}
+                          {item.color && <p>Color: {item.color}</p>}
+                          <p>Rs {item.price}</p>
+                        </div>
+                      </div>
 
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() =>
-                          updateQuantity(item, item.quantity - 1)
-                        }
-                      >
-                        <Minus />
-                      </Button>
+                      {/* RIGHT CONTROLS */}
+                      <div className="flex items-center justify-between sm:justify-end gap-2 flex-wrap">
 
-                      <span>{item.quantity}</span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            updateQuantity(item, item.quantity - 1)
+                          }
+                        >
+                          <Minus />
+                        </Button>
 
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() =>
-                          updateQuantity(item, item.quantity + 1)
-                        }
-                        disabled={maxReached || isOutOfStock}
-                      >
-                        <Plus />
-                      </Button>
+                        <span>{item.quantity}</span>
 
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => removeFromCart(item)}
-                      >
-                        <Trash2 />
-                      </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            updateQuantity(item, item.quantity + 1)
+                          }
+                          disabled={maxReached || isOutOfStock}
+                        >
+                          <Plus />
+                        </Button>
 
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => removeFromCart(item)}
+                        >
+                          <Trash2 />
+                        </Button>
+
+                      </div>
                     </div>
 
                   </CardContent>
@@ -236,21 +238,35 @@ export default function CartPage() {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="space-y-3">
+
               <div className="flex justify-between">
                 <span>Total Items</span>
                 <span>
-                  {cartItems.reduce(
-                    (a, b) => a + b.quantity,
-                    0
-                  )}
+                  {cartItems.reduce((a, b) => a + b.quantity, 0)}
                 </span>
               </div>
 
-              <div className="flex justify-between font-bold mt-2">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>Rs {getTotalPrice()}</span>
+              </div>
+
+              {/* ✅ DELIVERY MESSAGE */}
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Delivery Charges</span>
+                <span>Depends on location</span>
+              </div>
+
+              <p className="text-xs text-gray-500">
+                Delivery charges will be shared after confirmation via call/WhatsApp.
+              </p>
+
+              <div className="flex justify-between font-bold text-lg mt-2">
                 <span>Total</span>
                 <span>Rs {getTotalPrice()}</span>
               </div>
+
             </CardContent>
 
             <CardFooter>

@@ -66,14 +66,17 @@ export default function AdminProducts() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+
       {/* Navbar */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 flex-wrap">
+
             <div className="flex items-center space-x-2 sm:space-x-8 flex-wrap">
               <Link to="/" className="text-xl sm:text-2xl font-bold text-gray-900">
                 Tatheer Fatima Collection Admin
               </Link>
+
               <div className="hidden md:flex space-x-6 flex-wrap">
                 <Link to="/admin" className="text-gray-600 hover:text-gray-900">
                   Dashboard
@@ -86,6 +89,7 @@ export default function AdminProducts() {
                 </Link>
               </div>
             </div>
+
             <div className="flex items-center space-x-2 sm:space-x-4 mt-2 md:mt-0 flex-wrap">
               <span className="text-sm text-gray-600 truncate max-w-[100px] sm:max-w-[150px]">
                 Welcome, {user.name}!
@@ -96,13 +100,16 @@ export default function AdminProducts() {
                 </Button>
               </Link>
             </div>
+
           </div>
         </div>
       </nav>
 
-      {/* Main Content */}
+      {/* Main */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 space-y-4 md:space-y-0">
+
           <div className="flex items-center space-x-4">
             <Link to="/admin">
               <Button variant="ghost" size="sm">
@@ -110,17 +117,20 @@ export default function AdminProducts() {
                 Back to Dashboard
               </Button>
             </Link>
+
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Products</h1>
               <p className="text-gray-600 text-sm sm:text-base">Manage your store products</p>
             </div>
           </div>
+
           <Link to="/admin/products/new">
             <Button className="w-full md:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Add Product
             </Button>
           </Link>
+
         </div>
 
         {products.length === 0 ? (
@@ -137,57 +147,92 @@ export default function AdminProducts() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <Card key={product._id} className="overflow-hidden flex flex-col">
-                <div className="aspect-square relative w-full">
-                 <img
-  src={
-    product.image
-      ? product.image
-      : "https://via.placeholder.com/300x300?text=Product"
-  }
-  alt={product.name}
-  className="w-full h-full object-cover"
-/>
 
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-lg truncate">{product.name}</CardTitle>
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-1">
-                    <span className="text-xl sm:text-2xl font-bold text-blue-600">
-                      {formatCurrency(product.price)}
-                    </span>
-                    <span className="text-sm text-gray-600 mt-1 sm:mt-0">
-                      Stock: {product.stock || 0}
-                    </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            {products.map((product) => {
+
+              const isOutOfStock = product.stock === 0
+
+              return (
+                <Card key={product._id} className="overflow-hidden flex flex-col">
+
+                  {/* IMAGE WITH BADGE */}
+                  <div className="aspect-square relative w-full">
+
+                    {isOutOfStock && (
+                      <div className="absolute top-2 left-2 bg-red-600 text-white px-3 py-1 text-sm font-bold rounded z-10">
+                        Out of Stock
+                      </div>
+                    )}
+
+                    <img
+                      src={
+                        product.image
+                          ? product.image
+                          : "https://via.placeholder.com/300x300?text=Product"
+                      }
+                      alt={product.name}
+                      className={`w-full h-full object-cover ${
+                        isOutOfStock ? "opacity-60" : ""
+                      }`}
+                    />
+
                   </div>
-                </CardHeader>
-                <CardContent className="pt-0 flex flex-col space-y-2">
-                  {product.description && (
-                    <p className="text-gray-600 text-sm line-clamp-2">{product.description}</p>
-                  )}
-                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                    <Link to={`/admin/products/edit/${product._id}`} className="flex-1">
-                      <Button variant="outline" size="sm" className="w-full bg-transparent">
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
+
+                  <CardHeader>
+                    <CardTitle className="text-lg truncate">
+                      {product.name}
+                    </CardTitle>
+
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-1">
+                      <span className="text-xl sm:text-2xl font-bold text-blue-600">
+                        {formatCurrency(product.price)}
+                      </span>
+
+                      <span className="text-sm text-gray-600 mt-1 sm:mt-0">
+                        Stock: {product.stock || 0}
+                      </span>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="pt-0 flex flex-col space-y-2">
+
+                    {product.description && (
+                      <p className="text-gray-600 text-sm line-clamp-2">
+                        {product.description}
+                      </p>
+                    )}
+
+                    <div className="flex flex-col sm:flex-row gap-2">
+
+                      <Link to={`/admin/products/edit/${product._id}`} className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </Button>
+                      </Link>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteProduct(product._id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 w-full sm:w-auto"
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
-                    </Link>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeleteProduct(product._id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 w-full sm:w-auto"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+
+                    </div>
+
+                  </CardContent>
+
+                </Card>
+              )
+            })}
+
           </div>
         )}
+
       </div>
     </div>
   )
