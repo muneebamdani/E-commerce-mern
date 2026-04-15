@@ -79,12 +79,15 @@ import registerRoute from "./api/auth/register.js";
 import productRoutes from "./api/products/index.js";
 import orderRoutes from "./api/orders/index.js";
 import statsRoutes from "./api/stats/index.js";
+import categoryRoutes from "./api/categories/index.js"
+
 
 app.use("/api/login", loginRoute);
 app.use("/api/register", registerRoute);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/stats", statsRoutes);
+app.use("/api/categories", categoryRoutes);
 
 // ✅ Start server
 const PORT = process.env.PORT || 5000;

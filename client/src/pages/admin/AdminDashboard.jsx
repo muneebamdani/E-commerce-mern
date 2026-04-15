@@ -17,7 +17,7 @@ export default function AdminDashboard() {
     totalUsers: 0,
     totalRevenue: 0,
   })
-  const [menuOpen, setMenuOpen] = useState(false) // toggle for navbar on mobile
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     if (!user || user.role !== "admin") {
@@ -34,7 +34,10 @@ export default function AdminDashboard() {
         apiService.getOrders(),
         apiService.getDashboardCounts(),
       ])
-      const totalRevenue = ordersData?.reduce((sum, order) => sum + order.totalAmount, 0) || 0
+
+      const totalRevenue =
+        ordersData?.reduce((sum, order) => sum + order.totalAmount, 0) || 0
+
       setStats({
         totalProducts: productsData?.length || 0,
         totalOrders: ordersData?.length || 0,
@@ -50,95 +53,180 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
+
+      {/* NAVBAR */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-gray-900">Tatheer Fatima Collection Admin</Link>
 
-            {/* Desktop Links */}
+          <div className="flex justify-between items-center h-16">
+
+            <Link to="/" className="text-2xl font-bold text-gray-900">
+              Tatheer Fatima Collection Admin
+            </Link>
+
+            {/* DESKTOP MENU */}
             <div className="hidden md:flex items-center space-x-4">
-              <Link to="/admin" className="text-blue-600 font-medium">Dashboard</Link>
-              <Link to="/admin/products" className="text-gray-600 hover:text-gray-900">Products</Link>
-              <Link to="/admin/orders" className="text-gray-600 hover:text-gray-900">Orders</Link>
+
+              <Link to="/admin" className="text-blue-600 font-medium">
+                Dashboard
+              </Link>
+
+              <Link to="/admin/products" className="text-gray-600 hover:text-gray-900">
+                Products
+              </Link>
+
+              {/* ✅ NEW CATEGORY LINK */}
+              <Link to="/admin/categories" className="text-gray-600 hover:text-gray-900">
+                Categories
+              </Link>
+
+              <Link to="/admin/orders" className="text-gray-600 hover:text-gray-900">
+                Orders
+              </Link>
+
               <Link to="/admin/products/new">
                 <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                  <Plus className="h-4 w-4 mr-2" />Add Product
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Product
                 </Button>
               </Link>
+
               <Link to="/">
-                <Button variant="outline" size="sm">View Store</Button>
+                <Button variant="outline" size="sm">
+                  View Store
+                </Button>
               </Link>
-              <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
+
+              <span className="text-sm text-gray-600">
+                Welcome, {user.name}!
+              </span>
+
             </div>
 
-            {/* Mobile Toggle */}
+            {/* MOBILE TOGGLE BUTTON */}
             <div className="md:hidden flex items-center">
               <button onClick={() => setMenuOpen(!menuOpen)}>
-                {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                {menuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
               </button>
             </div>
+
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* MOBILE MENU */}
         {menuOpen && (
           <div className="md:hidden px-4 pb-4 space-y-2 bg-white border-t">
-            <Link to="/admin" className="block text-blue-600 font-medium">Dashboard</Link>
-            <Link to="/admin/products" className="block text-gray-600 hover:text-gray-900">Products</Link>
-            <Link to="/admin/orders" className="block text-gray-600 hover:text-gray-900">Orders</Link>
-            <Link to="/admin/products/new" className="block">
+
+            <Link
+              to="/admin"
+              className="block text-blue-600 font-medium"
+              onClick={() => setMenuOpen(false)}
+            >
+              Dashboard
+            </Link>
+
+            <Link
+              to="/admin/products"
+              className="block text-gray-600 hover:text-gray-900"
+              onClick={() => setMenuOpen(false)}
+            >
+              Products
+            </Link>
+
+            {/* ✅ NEW CATEGORY MOBILE LINK */}
+            <Link
+              to="/admin/categories"
+              className="block text-gray-600 hover:text-gray-900"
+              onClick={() => setMenuOpen(false)}
+            >
+              Categories
+            </Link>
+
+            <Link
+              to="/admin/orders"
+              className="block text-gray-600 hover:text-gray-900"
+              onClick={() => setMenuOpen(false)}
+            >
+              Orders
+            </Link>
+
+            <Link to="/admin/products/new" className="block" onClick={() => setMenuOpen(false)}>
               <Button size="sm" className="w-full bg-green-600 hover:bg-green-700">
-                <Plus className="h-4 w-4 mr-2" />Add Product
+                <Plus className="h-4 w-4 mr-2" />
+                Add Product
               </Button>
             </Link>
-            <Link to="/" className="block">
-              <Button variant="outline" size="sm" className="w-full">View Store</Button>
+
+            <Link to="/" className="block" onClick={() => setMenuOpen(false)}>
+              <Button variant="outline" size="sm" className="w-full">
+                View Store
+              </Button>
             </Link>
-            <span className="block text-sm text-gray-600 mt-2">Welcome, {user.name}!</span>
+
+            <span className="block text-sm text-gray-600 mt-2">
+              Welcome, {user.name}!
+            </span>
+
           </div>
         )}
       </nav>
 
-      {/* Stats Cards */}
+      {/* STATS */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage your store and track performance</p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Admin Dashboard
+          </h1>
+          <p className="text-gray-600">
+            Manage your store and track performance
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
           <Card>
-            <CardHeader className="flex justify-between items-center pb-2">
-              <CardTitle className="text-sm font-medium">Total Products</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Total Products</CardTitle>
             </CardHeader>
-            <CardContent><div className="text-2xl font-bold">{stats.totalProducts}</div></CardContent>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalProducts}</div>
+            </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex justify-between items-center pb-2">
-              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Total Orders</CardTitle>
             </CardHeader>
-            <CardContent><div className="text-2xl font-bold">{stats.totalOrders}</div></CardContent>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalOrders}</div>
+            </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex justify-between items-center pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Total Revenue</CardTitle>
             </CardHeader>
-            <CardContent><div className="text-2xl font-bold">Rs{stats.totalRevenue.toFixed(2)}</div></CardContent>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                Rs {stats.totalRevenue.toFixed(2)}
+              </div>
+            </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex justify-between items-center pb-2">
-              <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Active Users</CardTitle>
             </CardHeader>
-            <CardContent><div className="text-2xl font-bold">{stats.totalUsers}</div></CardContent>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalUsers}</div>
+            </CardContent>
           </Card>
+
         </div>
       </div>
     </div>

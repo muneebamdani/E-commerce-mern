@@ -9,24 +9,24 @@ import { useCart } from "../context/cart-context"
 import { useAuth } from "../context/auth-context"
 import Footer from "../components/Footer"
 import { apiService } from "../services/api"
-import { Label } from "../components/ui/label"
 
 export default function HomePage() {
   const { addToCart, cartItems } = useCart()
   const { user, logout } = useAuth()
 
   const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
+
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const [selectedCategory, setSelectedCategory] = useState("Accessories")
-  const categories = ["Accessories", "Clothing", "Night Suits", "Watches"]
-
+  const [selectedCategory, setSelectedCategory] = useState("")
   const [selectedOptions, setSelectedOptions] = useState({})
 
   useEffect(() => {
     fetchProducts()
+    fetchCategories()
   }, [])
 
   const fetchProducts = async () => {
@@ -34,10 +34,24 @@ export default function HomePage() {
       const data = await apiService.getProducts()
       setProducts(data || [])
     } catch (err) {
-      console.error("Failed to fetch products:", err)
-      setError("Failed to load products. Please try again later.")
+      console.error(err)
+      setError("Failed to load products")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const fetchCategories = async () => {
+    try {
+      const res = await apiService.getCategories()
+      setCategories(res || [])
+
+      // auto select first category
+      if (res && res.length > 0) {
+        setSelectedCategory(res[0].name)
+      }
+    } catch (err) {
+      console.log(err)
     }
   }
 
@@ -57,7 +71,7 @@ export default function HomePage() {
 
   const filteredProducts = products.filter(
     (product) =>
-      product.category?.toLowerCase() === selectedCategory.toLowerCase()
+      product.category?.toLowerCase() === selectedCategory?.toLowerCase()
   )
 
   const formatCurrency = (amount) => {
@@ -193,19 +207,21 @@ export default function HomePage() {
       {/* CATEGORY */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-3 flex gap-4 overflow-x-auto">
+
           {categories.map((cat) => (
             <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              key={cat._id}
+              onClick={() => setSelectedCategory(cat.name)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-                selectedCategory === cat
+                selectedCategory === cat.name
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 text-gray-700"
               }`}
             >
-              {cat}
+              {cat.name}
             </button>
           ))}
+
         </div>
       </div>
 
@@ -236,63 +252,35 @@ export default function HomePage() {
               const cartItem = cartItems.find((i) => i.id === product._id)
               const quantity = cartItem ? cartItem.quantity : 0
 
-              const isNightSuit = product.category === "Night Suits"
-
-              const selectedSize =
-                selectedOptions[product._id]?.size ||
-                (isNightSuit ? product.sizes?.[0] || "" : "")
-
-              const selectedColor =
-                selectedOptions[product._id]?.color ||
-                (isNightSuit ? product.colors?.[0] || "" : "")
-
               const isOutOfStock = product.stock === 0
 
               const handleAddToCart = () => {
                 if (isOutOfStock) return
 
-                if (isNightSuit && (!selectedSize || !selectedColor)) {
-                  alert("Please select size and color")
-                  return
-                }
-
                 addToCart({
                   id: product._id,
                   name: product.name,
                   price: product.price,
-                  image: product.image,
-                  size: selectedSize,
-                  color: selectedColor
+                  image: product.image
                 })
               }
 
               return (
-                <Card key={product._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <Card key={product._id} className="overflow-hidden">
 
-                  <div className="aspect-square relative">
-                    {isOutOfStock && (
-                      <div className="absolute top-2 left-2 bg-red-600 text-white px-3 py-1 text-sm font-bold rounded z-10">
-                        Out of Stock
-                      </div>
-                    )}
-
-                    <img
-                      src={product.image || "https://via.placeholder.com/300"}
-                      alt={product.name}
-                      className={`w-full h-full object-cover ${isOutOfStock ? "opacity-60" : ""}`}
-                    />
-                  </div>
+                  <img
+                    src={product.image}
+                    className="w-full h-60 object-cover"
+                  />
 
                   <CardContent className="p-4">
-                    <h3 className="font-semibold text-lg">{product.name}</h3>
-                    <p className="text-2xl font-bold text-blue-600">
+                    <h3 className="font-semibold">{product.name}</h3>
+                    <p className="text-blue-600 font-bold">
                       {formatCurrency(product.price)}
                     </p>
                   </CardContent>
 
                   <CardFooter className="p-4 pt-0">
-
-                    {/* 🔥 UPDATED BUTTON */}
                     <Button
                       onClick={handleAddToCart}
                       disabled={isOutOfStock}
@@ -304,7 +292,6 @@ export default function HomePage() {
                         ? `Add to Cart (${quantity})`
                         : "Add to Cart"}
                     </Button>
-
                   </CardFooter>
 
                 </Card>
