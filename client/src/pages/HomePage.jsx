@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { ShoppingCart, User, Menu, X } from "lucide-react"
@@ -36,7 +38,6 @@ export default function HomePage() {
     }
   }
 
-  // ✅ FIXED: consistent _id matching
   const cartCountForProduct = (productId) => {
     const item = cartItems.find((i) => i.id === productId)
     return item?.quantity || 0
@@ -81,6 +82,13 @@ export default function HomePage() {
                     Welcome, {user.name}!
                   </span>
 
+                  {/* ✅ ADDED MY ORDERS */}
+                  <Link to="/my-orders">
+                    <Button variant="ghost" size="sm">
+                      My Orders
+                    </Button>
+                  </Link>
+
                   <Link to="/cart">
                     <Button variant="outline" size="sm" className="relative bg-transparent">
                       <ShoppingCart className="h-4 w-4 mr-2" />
@@ -94,7 +102,6 @@ export default function HomePage() {
                     </Button>
                   </Link>
 
-                  {/* 🔥 FIXED ADMIN BUTTON */}
                   {user?.role?.toLowerCase() === "admin" && (
                     <Link to="/admin">
                       <Button variant="ghost" size="sm">
@@ -139,7 +146,13 @@ export default function HomePage() {
                 Welcome, {user.name}!
               </p>
 
-              {/* 🔥 ADMIN MOBILE BUTTON FIXED */}
+              {/* ✅ ADDED MY ORDERS */}
+              <Link to="/my-orders" onClick={() => setMenuOpen(false)}>
+                <Button variant="ghost" className="w-full justify-start">
+                  My Orders
+                </Button>
+              </Link>
+
               {user?.role?.toLowerCase() === "admin" && (
                 <Link to="/admin" onClick={() => setMenuOpen(false)}>
                   <Button variant="ghost" className="w-full justify-start">
@@ -246,7 +259,7 @@ export default function HomePage() {
                     <Button
                       onClick={() =>
                         addToCart({
-                          id: product._id, // ✅ FIXED
+                          id: product._id,
                           name: product.name,
                           price: product.price,
                           image: product.image,
