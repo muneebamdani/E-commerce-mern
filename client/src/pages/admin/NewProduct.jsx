@@ -52,8 +52,12 @@ export default function NewProduct() {
       data.append("category", formData.category)
 
       if (formData.category === "Night Suits") {
-        formData.sizes.forEach((size) => data.append("sizes[]", size))
-        formData.colors.forEach((color) => data.append("colors[]", color))
+        formData.sizes.forEach((size) =>
+          data.append("sizes[]", size)
+        )
+        formData.colors.forEach((color) =>
+          data.append("colors[]", color)
+        )
       }
 
       if (imageFile) data.append("image", imageFile)
@@ -70,19 +74,23 @@ export default function NewProduct() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4 py-8">
 
-        <div className="flex items-center space-x-4 mb-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+
           <Link to="/admin/products">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="w-full sm:w-auto">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Products
             </Button>
           </Link>
 
-          <div>
-            <h1 className="text-3xl font-bold">Add New Product</h1>
-          </div>
+          <h1 className="text-xl sm:text-3xl font-bold text-center sm:text-left">
+            Add New Product
+          </h1>
+
         </div>
 
         <Card>
@@ -91,23 +99,35 @@ export default function NewProduct() {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
 
-              {error && <p className="text-red-600">{error}</p>}
+              {error && (
+                <p className="text-red-600 text-sm">{error}</p>
+              )}
 
+              {/* NAME */}
               <div>
                 <Label>Product Name</Label>
-                <Input name="name" onChange={handleChange} required />
+                <Input
+                  name="name"
+                  onChange={handleChange}
+                  required
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* PRICE + STOCK */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                 <div>
                   <Label>Price</Label>
-                  <Input name="price" type="number" onChange={handleChange} required />
+                  <Input
+                    name="price"
+                    type="number"
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
 
-                {/* 🔥 STOCK CONTROL ADDED */}
                 <div>
                   <Label>Stock</Label>
                   <Input
@@ -120,17 +140,93 @@ export default function NewProduct() {
 
               </div>
 
+              {/* IMAGE */}
               <div>
                 <Label>Image</Label>
-                <Input type="file" onChange={(e) => setImageFile(e.target.files[0])} />
+                <Input
+                  type="file"
+                  onChange={(e) =>
+                    setImageFile(e.target.files[0])
+                  }
+                />
               </div>
 
+              {/* CATEGORY */}
+              <div>
+                <Label>Category</Label>
+
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="border p-2 rounded w-full text-sm sm:text-base"
+                >
+                  <option value="Accessories">Accessories</option>
+                  <option value="Clothing">Clothing</option>
+                  <option value="Night Suits">Night Suits</option>
+                  <option value="Watches">Watches</option>
+                </select>
+              </div>
+
+              {/* NIGHT SUITS OPTIONS */}
+              {formData.category === "Night Suits" && (
+                <>
+                  <div>
+                    <Label>Sizes</Label>
+
+                    <select
+                      multiple
+                      value={formData.sizes}
+                      onChange={(e) => {
+                        const selected = Array.from(
+                          e.target.selectedOptions,
+                          (option) => option.value
+                        )
+                        setFormData({ ...formData, sizes: selected })
+                      }}
+                      className="border p-2 rounded w-full h-24 text-sm"
+                    >
+                      <option value="Medium">Medium</option>
+                      <option value="Large">Large</option>
+                      <option value="Extra Large">Extra Large</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label>Colors</Label>
+
+                    <Input
+                      placeholder="Red, Blue, Green"
+                      value={formData.colors.join(", ")}
+                      onChange={(e) => {
+                        const colors = e.target.value
+                          .split(",")
+                          .map((c) => c.trim())
+                          .filter(Boolean)
+
+                        setFormData({ ...formData, colors })
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* DESCRIPTION */}
               <div>
                 <Label>Description</Label>
-                <Textarea name="description" onChange={handleChange} />
+
+                <Textarea
+                  name="description"
+                  onChange={handleChange}
+                />
               </div>
 
-              <Button type="submit" disabled={isLoading} className="w-full">
+              {/* SUBMIT */}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full text-sm sm:text-base"
+              >
                 {isLoading ? "Creating..." : "Create Product"}
               </Button>
 
