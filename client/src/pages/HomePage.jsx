@@ -82,7 +82,6 @@ export default function HomePage() {
                     Welcome, {user.name}!
                   </span>
 
-                  {/* ✅ ADDED MY ORDERS */}
                   <Link to="/my-orders">
                     <Button variant="ghost" size="sm">
                       My Orders
@@ -136,7 +135,7 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* MOBILE */}
+      {/* MOBILE MENU */}
       {menuOpen && (
         <div className="md:hidden bg-white shadow-lg border-b px-4 py-4 space-y-3">
 
@@ -146,7 +145,6 @@ export default function HomePage() {
                 Welcome, {user.name}!
               </p>
 
-              {/* ✅ ADDED MY ORDERS */}
               <Link to="/my-orders" onClick={() => setMenuOpen(false)}>
                 <Button variant="ghost" className="w-full justify-start">
                   My Orders
@@ -233,44 +231,88 @@ export default function HomePage() {
 
             {filteredProducts.map((product) => {
               const quantity = cartCountForProduct(product._id)
+              const isOutOfStock = (product.stock ?? 0) <= 0
 
               return (
-                <Card key={product._id} className="relative">
+                <Card key={product._id} className="relative overflow-hidden">
 
-                  {quantity > 0 && (
-                    <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                      In Cart: {quantity}
+                  {/* OUT OF STOCK BADGE */}
+                  {isOutOfStock && (
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded-full z-10">
+                      Out of Stock
                     </div>
                   )}
 
+                  {/* IMAGE */}
                   <img
                     src={product.image}
-                    className="w-full h-60 object-cover"
+                    className={`w-full h-60 object-cover ${
+                      isOutOfStock ? "opacity-60" : ""
+                    }`}
                   />
 
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold">{product.name}</h3>
+                  {/* CONTENT */}
+                  <CardContent className="p-4 space-y-1">
+
+                    <h3 className="font-semibold text-lg">
+                      {product.name}
+                    </h3>
+
+                    {product.category && (
+                      <p className="text-xs text-gray-500">
+                        Category: {product.category}
+                      </p>
+                    )}
+
                     <p className="text-blue-600 font-bold">
                       {formatCurrency(product.price)}
                     </p>
+
+                    {product.description && (
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {product.description}
+                      </p>
+                    )}
+
+                    <p className={`text-xs font-medium ${
+                      isOutOfStock ? "text-red-600" : "text-green-600"
+                    }`}>
+                      {isOutOfStock
+                        ? "Out of Stock"
+                        : `In Stock: ${product.stock ?? 0}`}
+                    </p>
+
+                    {quantity > 0 && (
+                      <p className="text-xs text-blue-600">
+                        In Cart: {quantity}
+                      </p>
+                    )}
+
                   </CardContent>
 
+                  {/* BUTTON */}
                   <CardFooter className="p-4 pt-0">
+
                     <Button
-                      onClick={() =>
+                      onClick={() => {
+                        if (isOutOfStock) return
                         addToCart({
                           id: product._id,
                           name: product.name,
                           price: product.price,
                           image: product.image,
                         })
-                      }
+                      }}
                       className="w-full"
+                      disabled={isOutOfStock}
                     >
-                      {quantity > 0
+                      {isOutOfStock
+                        ? "Out of Stock"
+                        : quantity > 0
                         ? `Add More (${quantity})`
                         : "Add to Cart"}
                     </Button>
+
                   </CardFooter>
 
                 </Card>
