@@ -72,6 +72,7 @@ export default function HomePage() {
             Tatheer Fatima Collection
           </Link>
 
+          {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center space-x-4">
 
             {user ? (
@@ -122,6 +123,7 @@ export default function HomePage() {
 
           </div>
 
+          {/* MOBILE BUTTON */}
           <button
             className="md:hidden p-2"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -138,16 +140,26 @@ export default function HomePage() {
 
           {user ? (
             <>
-              <p>Welcome, {user.name}!</p>
+              <p className="text-sm text-gray-600">
+                Welcome, {user.name}!
+              </p>
 
-              <Link to="/my-orders">
+              {/* CART BUTTON ADDED */}
+              <Link to="/cart" onClick={() => setMenuOpen(false)}>
+                <Button className="w-full justify-start" variant="outline">
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Cart ({totalCartQuantity})
+                </Button>
+              </Link>
+
+              <Link to="/my-orders" onClick={() => setMenuOpen(false)}>
                 <Button className="w-full justify-start" variant="ghost">
                   My Orders
                 </Button>
               </Link>
 
               {user?.role?.toLowerCase() === "admin" && (
-                <Link to="/admin">
+                <Link to="/admin" onClick={() => setMenuOpen(false)}>
                   <Button className="w-full justify-start" variant="ghost">
                     Admin Panel
                   </Button>
@@ -157,17 +169,30 @@ export default function HomePage() {
               <Button
                 className="w-full justify-start"
                 variant="ghost"
-                onClick={logout}
+                onClick={() => {
+                  logout()
+                  setMenuOpen(false)
+                }}
               >
                 Logout
               </Button>
             </>
           ) : (
-            <Link to="/login">
-              <Button className="w-full justify-start" variant="ghost">
-                Login
-              </Button>
-            </Link>
+            <>
+              {/* CART ALSO FOR GUEST USERS */}
+              <Link to="/cart" onClick={() => setMenuOpen(false)}>
+                <Button className="w-full justify-start" variant="outline">
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Cart ({totalCartQuantity})
+                </Button>
+              </Link>
+
+              <Link to="/login" onClick={() => setMenuOpen(false)}>
+                <Button className="w-full justify-start" variant="ghost">
+                  Login
+                </Button>
+              </Link>
+            </>
           )}
 
         </div>
@@ -253,7 +278,7 @@ export default function HomePage() {
                       </p>
                     )}
 
-                    {/* ONLY TEXT (NO QUANTITY) */}
+                    {/* ONLY TEXT (NO STOCK NUMBER) */}
                     <p className={`text-xs font-medium ${
                       isOutOfStock ? "text-red-600" : "text-green-600"
                     }`}>
