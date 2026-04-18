@@ -40,7 +40,9 @@ export default function AdminOrders() {
       const updatedOrder = await apiService.updateOrderStatus(orderId, newStatus)
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
-          order._id === updatedOrder.order._id ? { ...order, status: updatedOrder.order.status } : order
+          order._id === updatedOrder.order._id
+            ? { ...order, status: updatedOrder.order.status }
+            : order
         )
       )
     } catch (error) {
@@ -81,87 +83,140 @@ export default function AdminOrders() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+
       {/* Navigation */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
+
             <div className="flex items-center space-x-8">
+
               <Link to="/" className="text-2xl font-bold text-gray-900">
                 Tatheer Fatima Collection Admin
               </Link>
+
               <div className="hidden md:flex space-x-6">
+
                 <Link to="/admin" className="text-gray-600 hover:text-gray-900">
                   Dashboard
                 </Link>
+
                 <Link to="/admin/products" className="text-gray-600 hover:text-gray-900">
                   Products
                 </Link>
+
+                {/* ✅ NEW CATEGORIES BUTTON */}
+                <Link to="/admin/categories" className="text-gray-600 hover:text-gray-900">
+                  Categories
+                </Link>
+
                 <Link to="/admin/orders" className="text-blue-600 font-medium">
                   Orders
                 </Link>
+
               </div>
             </div>
+
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user.name}!</span>
+              <span className="text-sm text-gray-600">
+                Welcome, {user.name}!
+              </span>
+
               <Link to="/">
                 <Button variant="outline" size="sm">
                   View Store
                 </Button>
               </Link>
             </div>
+
           </div>
         </div>
       </nav>
 
+      {/* Main */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
         <div className="flex items-center space-x-4 mb-8">
+
           <Link to="/admin">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Button>
           </Link>
+
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
             <p className="text-gray-600">Manage customer orders</p>
           </div>
+
         </div>
 
         {orders.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
-              <p className="text-gray-600">Orders will appear here when customers make purchases</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No orders found
+              </h3>
+              <p className="text-gray-600">
+                Orders will appear here when customers make purchases
+              </p>
             </CardContent>
           </Card>
         ) : (
+
           <div className="space-y-6">
+
             {orders.map((order) => (
               <Card key={order._id}>
+
                 <CardHeader>
+
                   <div className="flex justify-between items-start">
+
                     <div>
-                      <CardTitle className="text-lg">Order #{order._id.slice(-8)}</CardTitle>
+                      <CardTitle className="text-lg">
+                        Order #{order._id.slice(-8)}
+                      </CardTitle>
+
                       <div className="text-sm text-gray-600 mt-1 space-y-1">
-                        <p>Customer: {order.userName} ({order.userMobile})</p>
-                        <p>Order Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-                        {order.shippingAddress && <p>Delivery Address: {order.shippingAddress}</p>}
+                        <p>
+                          Customer: {order.userName} ({order.userMobile})
+                        </p>
+                        <p>
+                          Order Date: {new Date(order.createdAt).toLocaleDateString()}
+                        </p>
+                        {order.shippingAddress && (
+                          <p>Delivery Address: {order.shippingAddress}</p>
+                        )}
                       </div>
                     </div>
+
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-green-600 mb-2">Rs{order.totalAmount.toFixed(2)}</div>
+                      <div className="text-2xl font-bold text-green-600 mb-2">
+                        Rs{order.totalAmount.toFixed(2)}
+                      </div>
+
                       <Badge className={getStatusColor(order.status)}>
                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                       </Badge>
                     </div>
+
                   </div>
+
                 </CardHeader>
 
                 <CardContent>
+
                   <div className="space-y-4">
+
                     <div>
-                      <h4 className="font-medium mb-2">Items ({order.items.length})</h4>
+                      <h4 className="font-medium mb-2">
+                        Items ({order.items.length})
+                      </h4>
+
                       <div className="space-y-2">
+
                         {order.items.map((item, index) => (
                           <div key={index} className="flex justify-between items-center text-sm">
                             <span>
@@ -169,34 +224,50 @@ export default function AdminOrders() {
                               {item.size && <>(Size: {item.size})</>}{" "}
                               {item.color && <>(Color: {item.color})</>}
                             </span>
-                            <span>Rs{(item.price * item.quantity).toFixed(2)}</span>
+                            <span>
+                              Rs{(item.price * item.quantity).toFixed(2)}
+                            </span>
                           </div>
                         ))}
+
                       </div>
                     </div>
 
                     {/* Status update */}
                     <div className="flex justify-start items-center pt-4 border-t">
-                      <div className="flex items-center space-x-4">
-                        <Select value={order.status} onValueChange={(value) => handleStatusUpdate(order._id, value)}>
-                          <SelectTrigger className="w-40">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="confirmed">Confirmed</SelectItem>
-                            <SelectItem value="shipped">Shipped</SelectItem>
-                            <SelectItem value="delivered">Delivered</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+
+                      <Select
+                        value={order.status}
+                        onValueChange={(value) =>
+                          handleStatusUpdate(order._id, value)
+                        }
+                      >
+                        <SelectTrigger className="w-40">
+                          <SelectValue />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="confirmed">Confirmed</SelectItem>
+                          <SelectItem value="shipped">Shipped</SelectItem>
+                          <SelectItem value="delivered">Delivered</SelectItem>
+                        </SelectContent>
+
+                      </Select>
+
                     </div>
+
                   </div>
+
                 </CardContent>
+
               </Card>
             ))}
+
           </div>
+
         )}
+
       </div>
     </div>
   )

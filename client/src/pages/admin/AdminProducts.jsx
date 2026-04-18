@@ -73,20 +73,30 @@ export default function AdminProducts() {
           <div className="flex justify-between items-center h-16 flex-wrap">
 
             <div className="flex items-center space-x-2 sm:space-x-8 flex-wrap">
+
               <Link to="/" className="text-xl sm:text-2xl font-bold text-gray-900">
                 Tatheer Fatima Collection Admin
               </Link>
 
               <div className="hidden md:flex space-x-6 flex-wrap">
+
                 <Link to="/admin" className="text-gray-600 hover:text-gray-900">
                   Dashboard
                 </Link>
+
                 <Link to="/admin/products" className="text-blue-600 font-medium">
                   Products
                 </Link>
+
+                {/* ✅ Categories Button */}
+                <Link to="/admin/categories" className="text-gray-600 hover:text-gray-900">
+                  Categories
+                </Link>
+
                 <Link to="/admin/orders" className="text-gray-600 hover:text-gray-900">
                   Orders
                 </Link>
+
               </div>
             </div>
 
@@ -157,7 +167,6 @@ export default function AdminProducts() {
               return (
                 <Card key={product._id} className="overflow-hidden flex flex-col">
 
-                  {/* IMAGE WITH BADGE */}
                   <div className="aspect-square relative w-full">
 
                     {isOutOfStock && (
