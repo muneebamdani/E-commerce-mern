@@ -66,124 +66,109 @@ export default function HomePage() {
 
       {/* NAVBAR */}
       <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
 
-          <div className="flex justify-between items-center h-16">
+          <Link to="/" className="text-2xl font-bold text-gray-900">
+            Tatheer Fatima Collection
+          </Link>
 
-            <Link to="/" className="text-2xl font-bold text-gray-900">
-              Tatheer Fatima Collection
-            </Link>
+          <div className="hidden md:flex items-center space-x-4">
 
-            <div className="hidden md:flex items-center space-x-4">
+            {user ? (
+              <>
+                <span className="text-sm text-gray-600">
+                  Welcome, {user.name}!
+                </span>
 
-              {user ? (
-                <>
-                  <span className="text-sm text-gray-600">
-                    Welcome, {user.name}!
-                  </span>
-
-                  <Link to="/my-orders">
-                    <Button variant="ghost" size="sm">
-                      My Orders
-                    </Button>
-                  </Link>
-
-                  <Link to="/cart">
-                    <Button variant="outline" size="sm" className="relative bg-transparent">
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      Cart
-
-                      {totalCartQuantity > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                          {totalCartQuantity}
-                        </span>
-                      )}
-                    </Button>
-                  </Link>
-
-                  {user?.role?.toLowerCase() === "admin" && (
-                    <Link to="/admin">
-                      <Button variant="ghost" size="sm">
-                        Admin Panel
-                      </Button>
-                    </Link>
-                  )}
-
-                  <Button variant="ghost" size="sm" onClick={logout}>
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <Link to="/login">
+                <Link to="/my-orders">
                   <Button variant="ghost" size="sm">
-                    <User className="h-4 w-4 mr-2" />
-                    Login
+                    My Orders
                   </Button>
                 </Link>
-              )}
 
-            </div>
+                <Link to="/cart">
+                  <Button variant="outline" size="sm" className="relative bg-transparent">
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Cart
 
-            <button
-              className="md:hidden p-2 rounded hover:bg-gray-100"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              {menuOpen ? <X /> : <Menu />}
-            </button>
+                    {totalCartQuantity > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {totalCartQuantity}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+
+                {user?.role?.toLowerCase() === "admin" && (
+                  <Link to="/admin">
+                    <Button variant="ghost" size="sm">
+                      Admin Panel
+                    </Button>
+                  </Link>
+                )}
+
+                <Button variant="ghost" size="sm" onClick={logout}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Link to="/login">
+                <Button variant="ghost" size="sm">
+                  <User className="h-4 w-4 mr-2" />
+                  Login
+                </Button>
+              </Link>
+            )}
 
           </div>
+
+          <button
+            className="md:hidden p-2"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <X /> : <Menu />}
+          </button>
+
         </div>
       </nav>
 
       {/* MOBILE MENU */}
       {menuOpen && (
-        <div className="md:hidden bg-white shadow-lg border-b px-4 py-4 space-y-3">
+        <div className="md:hidden bg-white border-b px-4 py-4 space-y-3">
 
           {user ? (
             <>
-              <p className="text-sm text-gray-600">
-                Welcome, {user.name}!
-              </p>
+              <p>Welcome, {user.name}!</p>
 
-              <Link to="/my-orders" onClick={() => setMenuOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start">
+              <Link to="/my-orders">
+                <Button className="w-full justify-start" variant="ghost">
                   My Orders
                 </Button>
               </Link>
 
               {user?.role?.toLowerCase() === "admin" && (
-                <Link to="/admin" onClick={() => setMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start">
+                <Link to="/admin">
+                  <Button className="w-full justify-start" variant="ghost">
                     Admin Panel
                   </Button>
                 </Link>
               )}
 
               <Button
-                variant="ghost"
                 className="w-full justify-start"
-                onClick={() => {
-                  logout()
-                  setMenuOpen(false)
-                }}
+                variant="ghost"
+                onClick={logout}
               >
                 Logout
               </Button>
             </>
           ) : (
-            <Link to="/login" onClick={() => setMenuOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">
+            <Link to="/login">
+              <Button className="w-full justify-start" variant="ghost">
                 Login
               </Button>
             </Link>
           )}
-
-          <Link to="/cart" onClick={() => setMenuOpen(false)}>
-            <Button variant="outline" className="w-full justify-start">
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              Cart ({totalCartQuantity})
-            </Button>
-          </Link>
 
         </div>
       )}
@@ -196,10 +181,10 @@ export default function HomePage() {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+              className={`px-4 py-2 rounded-full text-sm ${
                 selectedCategory === cat
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700"
+                  : "bg-gray-100"
               }`}
             >
               {cat}
@@ -211,21 +196,18 @@ export default function HomePage() {
 
       {/* HERO */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20 text-center">
-        <h1 className="text-4xl font-bold mb-2">
+        <h1 className="text-4xl font-bold">
           Welcome to Tatheer Fatima Collection
         </h1>
-        <p className="text-xl">
-          Discover amazing products at unbeatable prices
-        </p>
       </div>
 
       {/* PRODUCTS */}
       <div className="max-w-7xl mx-auto px-4 py-12">
 
         {isLoading ? (
-          <p className="text-center">Loading...</p>
+          <p>Loading...</p>
         ) : error ? (
-          <p className="text-red-600 text-center">{error}</p>
+          <p className="text-red-500">{error}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -234,11 +216,11 @@ export default function HomePage() {
               const isOutOfStock = (product.stock ?? 0) <= 0
 
               return (
-                <Card key={product._id} className="relative overflow-hidden">
+                <Card key={product._id} className="relative">
 
-                  {/* OUT OF STOCK BADGE */}
+                  {/* BADGE */}
                   {isOutOfStock && (
-                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded-full z-10">
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
                       Out of Stock
                     </div>
                   )}
@@ -246,21 +228,18 @@ export default function HomePage() {
                   {/* IMAGE */}
                   <img
                     src={product.image}
-                    className={`w-full h-60 object-cover ${
+                    className={`h-60 w-full object-cover ${
                       isOutOfStock ? "opacity-60" : ""
                     }`}
                   />
 
-                  {/* CONTENT */}
                   <CardContent className="p-4 space-y-1">
 
-                    <h3 className="font-semibold text-lg">
-                      {product.name}
-                    </h3>
+                    <h3 className="font-semibold">{product.name}</h3>
 
                     {product.category && (
                       <p className="text-xs text-gray-500">
-                        Category: {product.category}
+                        {product.category}
                       </p>
                     )}
 
@@ -274,12 +253,11 @@ export default function HomePage() {
                       </p>
                     )}
 
+                    {/* ONLY TEXT (NO QUANTITY) */}
                     <p className={`text-xs font-medium ${
                       isOutOfStock ? "text-red-600" : "text-green-600"
                     }`}>
-                      {isOutOfStock
-                        ? "Out of Stock"
-                        : `In Stock: ${product.stock ?? 0}`}
+                      {isOutOfStock ? "Out of Stock" : "In Stock"}
                     </p>
 
                     {quantity > 0 && (
@@ -290,10 +268,11 @@ export default function HomePage() {
 
                   </CardContent>
 
-                  {/* BUTTON */}
-                  <CardFooter className="p-4 pt-0">
+                  <CardFooter>
 
                     <Button
+                      className="w-full"
+                      disabled={isOutOfStock}
                       onClick={() => {
                         if (isOutOfStock) return
                         addToCart({
@@ -303,8 +282,6 @@ export default function HomePage() {
                           image: product.image,
                         })
                       }}
-                      className="w-full"
-                      disabled={isOutOfStock}
                     >
                       {isOutOfStock
                         ? "Out of Stock"
