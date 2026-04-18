@@ -21,7 +21,6 @@ export default function AdminDashboard() {
 
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // ✅ CLEAN + REUSABLE STATS FUNCTION
   const fetchStats = useCallback(async () => {
     try {
       const [productsData, ordersData, dashboardCounts] = await Promise.all([
@@ -49,18 +48,12 @@ export default function AdminDashboard() {
       navigate("/")
       return
     }
-
     fetchStats()
   }, [user, navigate, fetchStats])
 
-  // ✅ AUTO REFRESH WHEN USER COMES BACK TO TAB
   useEffect(() => {
-    const handleFocus = () => {
-      fetchStats()
-    }
-
+    const handleFocus = () => fetchStats()
     window.addEventListener("focus", handleFocus)
-
     return () => window.removeEventListener("focus", handleFocus)
   }, [fetchStats])
 
@@ -117,7 +110,7 @@ export default function AdminDashboard() {
 
             </div>
 
-            {/* MOBILE */}
+            {/* MOBILE BUTTON */}
             <div className="md:hidden">
               <button onClick={() => setMenuOpen(!menuOpen)}>
                 {menuOpen ? <X /> : <Menu />}
@@ -131,21 +124,44 @@ export default function AdminDashboard() {
         {menuOpen && (
           <div className="md:hidden px-4 pb-4 space-y-2 bg-white border-t">
 
-            <Link to="/admin" className="block text-blue-600" onClick={() => setMenuOpen(false)}>
+            <Link to="/admin" onClick={() => setMenuOpen(false)}
+              className="block text-blue-600 font-medium">
               Dashboard
             </Link>
 
-            <Link to="/admin/products" className="block text-gray-600" onClick={() => setMenuOpen(false)}>
+            <Link to="/admin/products" onClick={() => setMenuOpen(false)}
+              className="block text-gray-600">
               Products
             </Link>
 
-            <Link to="/admin/categories" className="block text-gray-600" onClick={() => setMenuOpen(false)}>
+            <Link to="/admin/categories" onClick={() => setMenuOpen(false)}
+              className="block text-gray-600">
               Categories
             </Link>
 
-            <Link to="/admin/orders" className="block text-gray-600" onClick={() => setMenuOpen(false)}>
+            <Link to="/admin/orders" onClick={() => setMenuOpen(false)}
+              className="block text-gray-600">
               Orders
             </Link>
+
+            {/* ✅ ADDED VIEW STORE BUTTON */}
+            <Link to="/" onClick={() => setMenuOpen(false)}>
+              <Button variant="outline" size="sm" className="w-full mt-2">
+                View Store
+              </Button>
+            </Link>
+
+            {/* OPTIONAL CTA */}
+            <Link to="/admin/products/new" onClick={() => setMenuOpen(false)}>
+              <Button className="w-full mt-2 bg-green-600 hover:bg-green-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Product
+              </Button>
+            </Link>
+
+            <p className="text-sm text-gray-600 mt-2">
+              Welcome, {user.name}
+            </p>
 
           </div>
         )}
