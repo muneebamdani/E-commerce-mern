@@ -13,29 +13,30 @@ import AdminProducts from "./pages/admin/AdminProducts";
 import AdminOrders from "./pages/admin/AdminOrders";
 import NewProduct from "./pages/admin/NewProduct";
 import EditProduct from "./pages/admin/EditProduct";
+import AdminCategories from "./pages/admin/AdminCategories"; // ✅ NEW IMPORT
 
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import MyOrdersPage from "./pages/MyOrdersPage.jsx";
 
-// ✅ AUTH HELPERS
+// ✅ AUTO LOGOUT HOOK
 import { useAutoLogout } from "./hooks/useAutoLogout";
 
 function App() {
-  // 🔥 AUTO LOGOUT ACTIVATED HERE
   useAutoLogout();
 
   return (
     <AuthProvider>
       <CartProvider>
         <Routes>
-          {/* Public Routes */}
+
+          {/* PUBLIC ROUTES */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
 
-          {/* User Orders */}
+          {/* USER ROUTES */}
           <Route
             path="/my-orders"
             element={
@@ -45,7 +46,7 @@ function App() {
             }
           />
 
-          {/* Admin Routes */}
+          {/* ADMIN ROUTES */}
           <Route
             path="/admin"
             element={
@@ -54,6 +55,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/admin/products"
             element={
@@ -62,6 +64,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/admin/products/new"
             element={
@@ -70,6 +73,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/admin/products/edit/:id"
             element={
@@ -78,6 +82,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/admin/orders"
             element={
@@ -86,6 +91,17 @@ function App() {
               </PrivateRoute>
             }
           />
+
+          {/* ✅ NEW: ADMIN CATEGORIES ROUTE */}
+          <Route
+            path="/admin/categories"
+            element={
+              <PrivateRoute adminOnly={true}>
+                <AdminCategories />
+              </PrivateRoute>
+            }
+          />
+
         </Routes>
       </CartProvider>
     </AuthProvider>
