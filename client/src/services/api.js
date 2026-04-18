@@ -1,7 +1,8 @@
 import api from "../services/apiClient";
 
-// -------------------- AUTH --------------------
 export const apiService = {
+
+  /* ---------------- AUTH ---------------- */
   signin: async ({ email, password }) => {
     const res = await api.post("/login", { email, password });
     return res.data;
@@ -18,100 +19,64 @@ export const apiService = {
     return res.data;
   },
 
-  // -------------------- DASHBOARD / STATS --------------------
+  /* ---------------- DASHBOARD ---------------- */
   getDashboardCounts: async () => {
-    try {
-      const res = await api.get("/stats/overview");
-      return res.data;
-    } catch (err) {
-      throw new Error(
-        err.response?.data?.message || "Failed to fetch dashboard counts"
-      );
-    }
+    const res = await api.get("/stats/overview");
+    return res.data;
   },
 
-  // -------------------- PRODUCTS --------------------
+  /* ---------------- PRODUCTS ---------------- */
   getProducts: async () => {
     const res = await api.get("/products");
     return res.data;
   },
 
-  createProduct: async (productData, isFormData = false) => {
-    try {
-      const config = {};
+  createProduct: async (data, isFormData = false) => {
+    const config = isFormData
+      ? { headers: { "Content-Type": "multipart/form-data" } }
+      : {};
 
-      // ✅ important for image upload + stock support
-      if (isFormData) {
-        config.headers = { "Content-Type": "multipart/form-data" };
-      }
-
-      const res = await api.post("/products", productData, config);
-      return res.data;
-    } catch (err) {
-      throw new Error(
-        err.response?.data?.error || "Failed to create product"
-      );
-    }
+    const res = await api.post("/products", data, config);
+    return res.data;
   },
 
-  updateProduct: async (id, updatedData, isFormData = false) => {
-    try {
-      const config = {};
+  updateProduct: async (id, data, isFormData = false) => {
+    const config = isFormData
+      ? { headers: { "Content-Type": "multipart/form-data" } }
+      : {};
 
-      // ✅ supports image + stock updates
-      if (isFormData) {
-        config.headers = { "Content-Type": "multipart/form-data" };
-      }
-
-      const res = await api.put(`/products/${id}`, updatedData, config);
-      return res.data;
-    } catch (err) {
-      throw new Error(
-        err.response?.data?.error || "Failed to update product"
-      );
-    }
+    const res = await api.put(`/products/${id}`, data, config);
+    return res.data;
   },
 
   deleteProduct: async (id) => {
-    try {
-      const res = await api.delete(`/products/${id}`);
-      return res.data;
-    } catch (err) {
-      throw new Error(
-        err.response?.data?.error || "Failed to delete product"
-      );
-    }
+    const res = await api.delete(`/products/${id}`);
+    return res.data;
   },
 
-  // -------------------- ORDERS --------------------
+  /* ---------------- ORDERS ---------------- */
   getOrders: async () => {
     const res = await api.get("/orders");
     return res.data;
   },
 
-  createOrder: async (orderData) => {
-    try {
-      const res = await api.post("/orders", orderData);
-      return res.data;
-    } catch (err) {
-      throw new Error(
-        err.response?.data?.error || "Order failed"
-      );
-    }
+  createOrder: async (data) => {
+    const res = await api.post("/orders", data);
+    return res.data;
   },
 
   updateOrderStatus: async (orderId, status) => {
-    try {
-      const res = await api.put(`/orders/${orderId}/status`, { status });
-      return res.data;
-    } catch (err) {
-      throw new Error(
-        err.response?.data?.error || "Failed to update order"
-      );
-    }
+    const res = await api.put(`/orders/${orderId}/status`, { status });
+    return res.data;
   },
 
-  // -------------------- CART --------------------
+  // ✅ NEW: DELETE ORDER
+  deleteOrder: async (orderId) => {
+    const res = await api.delete(`/orders/${orderId}`);
+    return res.data;
+  },
+
+  /* ---------------- CART ---------------- */
   getCart: async () => {
     const res = await api.get("/cart");
     return res.data;
@@ -137,24 +102,24 @@ export const apiService = {
     return res.data;
   },
 
-  // -----------------------CATEGORIES-----------------------
+  /* ---------------- CATEGORIES ---------------- */
   getCategories: async () => {
-  const res = await api.get("/categories")
-  return res.data
-},
+    const res = await api.get("/categories");
+    return res.data;
+  },
 
-createCategory: async (data) => {
-  const res = await api.post("/categories", data)
-  return res.data
-},
+  createCategory: async (data) => {
+    const res = await api.post("/categories", data);
+    return res.data;
+  },
 
-updateCategory: async (id, data) => {
-  const res = await api.put(`/categories/${id}`, data)
-  return res.data
-},
+  updateCategory: async (id, data) => {
+    const res = await api.put(`/categories/${id}`, data);
+    return res.data;
+  },
 
-deleteCategory: async (id) => {
-  const res = await api.delete(`/categories/${id}`)
-  return res.data
-},
+  deleteCategory: async (id) => {
+    const res = await api.delete(`/categories/${id}`);
+    return res.data;
+  },
 };

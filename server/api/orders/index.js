@@ -7,7 +7,7 @@ import { verifyToken, requireAdmin } from "../../utils/auth.js";
 
 const router = express.Router();
 
-// ✅ Ensure DB is connected before route logic
+/* ------------------------- DB CONNECTION ------------------------- */
 router.use(async (req, res, next) => {
   try {
     await connectDB();
@@ -20,7 +20,7 @@ router.use(async (req, res, next) => {
 
 /* ------------------------- USER ROUTES ------------------------- */
 
-// ✅ Create a new order
+// CREATE ORDER
 router.post("/", verifyToken, async (req, res) => {
   try {
     const user = req.user;
@@ -37,22 +37,18 @@ router.post("/", verifyToken, async (req, res) => {
       const product = await Product.findById(item.product || item.productId);
 
       if (!product) {
-        return res.status(400).json({
-          error: `Product not found`
-        });
+        return res.status(400).json({ error: "Product not found" });
       }
 
-      // ✅ OUT OF STOCK CHECK
       if (product.stock === 0) {
         return res.status(400).json({
-          error: `${product.name} is out of stock`
+          error: `${product.name} is out of stock`,
         });
       }
 
-      // ✅ INSUFFICIENT STOCK CHECK
       if (product.stock < item.quantity) {
         return res.status(400).json({
-          error: `Only ${product.stock} items available for ${product.name}`
+          error: `Only ${product.stock} items available for ${product.name}`,
         });
       }
 
@@ -66,7 +62,6 @@ router.post("/", verifyToken, async (req, res) => {
         color: item.color || null,
       });
 
-      // ✅ REDUCE STOCK
       product.stock -= item.quantity;
       await product.save();
     }
@@ -88,67 +83,28 @@ router.post("/", verifyToken, async (req, res) => {
       message: "Order created successfully",
       order,
     });
-
   } catch (error) {
     console.error("Order creation error:", error);
-    return res.status(500).json({
-      error: error.message || "Server error"
-    });
+    return res.status(500).json({ error: error.message });
   }
 });
 
-// ✅ Get all orders of logged-in user
+// USER ORDERS
 router.get("/my", verifyToken, async (req, res) => {
   try {
-    const user = req.user;
-
-    const orders = await Order.find({ user: user._id })
+    const orders = await Order.find({ user: req.user._id })
       .populate("items.product", "name image price")
       .sort({ createdAt: -1 });
 
-    return res.status(200).json(orders);
-
-  } catch (error) {
-    console.error("User orders fetch error:", error);
-    return res.status(500).json({
-      error: error.message || "Server error"
-    });
-  }
-});
-
-// ✅ Get single order details
-router.get("/my/:orderId", verifyToken, async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    const user = req.user;
-
-    const order = await Order.findById(orderId)
-      .populate("items.product", "name image price")
-      .populate("user", "name email");
-
-    if (!order) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-
-    if (order.user._id.toString() !== user._id.toString()) {
-      return res.status(403).json({ error: "Unauthorized access" });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Order fetched successfully",
-      order,
-    });
-
-  } catch (error) {
-    console.error("Single order fetch error:", error);
-    return res.status(500).json({ error: "Server error" });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 /* ------------------------- ADMIN ROUTES ------------------------- */
 
-// ✅ Get all orders (admin)
+// GET ALL ORDERS
 router.get("/", verifyToken, requireAdmin, async (req, res) => {
   try {
     const orders = await Order.find({})
@@ -156,46 +112,53 @@ router.get("/", verifyToken, requireAdmin, async (req, res) => {
       .populate("user", "name email mobile address")
       .sort({ createdAt: -1 });
 
-    return res.status(200).json(orders);
-
-  } catch (error) {
-    console.error("Orders fetch error:", error);
-    return res.status(500).json({
-      error: error.message || "Server error"
-    });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-// ✅ Update order status
+// UPDATE STATUS
 router.put("/:orderId/status", verifyToken, requireAdmin, async (req, res) => {
   try {
-    const { orderId } = req.params;
-    const { status } = req.body;
+    const order = await Order.findById(req.params.orderId);
 
-    if (!status) {
-      return res.status(400).json({ error: "Status is required" });
-    }
-
-    const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
 
-    order.status = status;
+    order.status = req.body.status;
     await order.save();
 
-    return res.status(200).json({
-      success: true,
-      order
-    });
-
-  } catch (error) {
-    console.error("Update order status error:", error);
-    return res.status(500).json({ error: "Server error" });
+    res.json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-/* ------------------------- DASHBOARD COUNT ------------------------- */
+// ✅ DELETE ORDER (NEW)
+router.delete("/:orderId", verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    await order.deleteOne();
+
+    res.json({
+      success: true,
+      message: "Order deleted successfully",
+    });
+  } catch (err) {
+    console.error("Delete order error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+/* ------------------------- DASHBOARD ------------------------- */
+
 router.get("/dashboard-counts", verifyToken, requireAdmin, async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
@@ -203,9 +166,7 @@ router.get("/dashboard-counts", verifyToken, requireAdmin, async (req, res) => {
     const totalOrders = await Order.countDocuments();
 
     res.json({ totalUsers, totalProducts, totalOrders });
-
   } catch (err) {
-    console.error("Dashboard counts fetch error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });

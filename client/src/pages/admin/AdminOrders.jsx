@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Trash2 } from "lucide-react"
 import { Button } from "../../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { Badge } from "../../components/ui/badge"
@@ -38,8 +38,9 @@ export default function AdminOrders() {
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
       const updatedOrder = await apiService.updateOrderStatus(orderId, newStatus)
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
+
+      setOrders((prev) =>
+        prev.map((order) =>
           order._id === updatedOrder.order._id
             ? { ...order, status: updatedOrder.order.status }
             : order
@@ -48,6 +49,24 @@ export default function AdminOrders() {
     } catch (error) {
       console.error("Failed to update order status:", error)
       alert("Failed to update order status")
+    }
+  }
+
+  // ✅ NEW: DELETE ORDER FUNCTION
+  const handleDeleteOrder = async (orderId) => {
+    const confirmDelete = confirm("Are you sure you want to delete this order?")
+    if (!confirmDelete) return
+
+    try {
+      await apiService.deleteOrder(orderId)
+
+      // remove from UI instantly
+      setOrders((prev) => prev.filter((order) => order._id !== orderId))
+
+      alert("Order deleted successfully")
+    } catch (error) {
+      console.error("Failed to delete order:", error)
+      alert("Failed to delete order")
     }
   }
 
@@ -66,9 +85,7 @@ export default function AdminOrders() {
     }
   }
 
-  if (!user || user.role !== "admin") {
-    return null
-  }
+  if (!user || user.role !== "admin") return null
 
   if (isLoading) {
     return (
@@ -84,7 +101,7 @@ export default function AdminOrders() {
   return (
     <div className="min-h-screen bg-gray-50">
 
-      {/* Navigation */}
+      {/* NAVBAR */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -105,7 +122,6 @@ export default function AdminOrders() {
                   Products
                 </Link>
 
-                {/* ✅ NEW CATEGORIES BUTTON */}
                 <Link to="/admin/categories" className="text-gray-600 hover:text-gray-900">
                   Categories
                 </Link>
@@ -119,7 +135,7 @@ export default function AdminOrders() {
 
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">
-                Welcome, {user.name}!
+                Welcome, {user.name}
               </span>
 
               <Link to="/">
@@ -133,7 +149,7 @@ export default function AdminOrders() {
         </div>
       </nav>
 
-      {/* Main */}
+      {/* MAIN */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <div className="flex items-center space-x-4 mb-8">
@@ -155,12 +171,7 @@ export default function AdminOrders() {
         {orders.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No orders found
-              </h3>
-              <p className="text-gray-600">
-                Orders will appear here when customers make purchases
-              </p>
+              <h3>No orders found</h3>
             </CardContent>
           </Card>
         ) : (
@@ -175,31 +186,25 @@ export default function AdminOrders() {
                   <div className="flex justify-between items-start">
 
                     <div>
-                      <CardTitle className="text-lg">
+                      <CardTitle>
                         Order #{order._id.slice(-8)}
                       </CardTitle>
 
-                      <div className="text-sm text-gray-600 mt-1 space-y-1">
-                        <p>
-                          Customer: {order.userName} ({order.userMobile})
-                        </p>
-                        <p>
-                          Order Date: {new Date(order.createdAt).toLocaleDateString()}
-                        </p>
-                        {order.shippingAddress && (
-                          <p>Delivery Address: {order.shippingAddress}</p>
-                        )}
+                      <div className="text-sm text-gray-600 mt-1">
+                        <p>{order.userName} ({order.userMobile})</p>
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-green-600 mb-2">
-                        Rs{order.totalAmount.toFixed(2)}
+
+                      <div className="text-xl font-bold text-green-600">
+                        Rs {order.totalAmount.toFixed(2)}
                       </div>
 
                       <Badge className={getStatusColor(order.status)}>
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        {order.status}
                       </Badge>
+
                     </div>
 
                   </div>
@@ -208,54 +213,53 @@ export default function AdminOrders() {
 
                 <CardContent>
 
-                  <div className="space-y-4">
+                  {/* ITEMS */}
+                  <div className="space-y-2 mb-4">
 
-                    <div>
-                      <h4 className="font-medium mb-2">
-                        Items ({order.items.length})
-                      </h4>
-
-                      <div className="space-y-2">
-
-                        {order.items.map((item, index) => (
-                          <div key={index} className="flex justify-between items-center text-sm">
-                            <span>
-                              {item.product.name} x {item.quantity}{" "}
-                              {item.size && <>(Size: {item.size})</>}{" "}
-                              {item.color && <>(Color: {item.color})</>}
-                            </span>
-                            <span>
-                              Rs{(item.price * item.quantity).toFixed(2)}
-                            </span>
-                          </div>
-                        ))}
-
+                    {order.items.map((item, i) => (
+                      <div key={i} className="flex justify-between text-sm">
+                        <span>
+                          {item.product.name} x {item.quantity}
+                        </span>
+                        <span>
+                          Rs {(item.price * item.quantity).toFixed(2)}
+                        </span>
                       </div>
-                    </div>
+                    ))}
 
-                    {/* Status update */}
-                    <div className="flex justify-start items-center pt-4 border-t">
+                  </div>
 
-                      <Select
-                        value={order.status}
-                        onValueChange={(value) =>
-                          handleStatusUpdate(order._id, value)
-                        }
-                      >
-                        <SelectTrigger className="w-40">
-                          <SelectValue />
-                        </SelectTrigger>
+                  {/* ACTIONS */}
+                  <div className="flex justify-between items-center border-t pt-4">
 
-                        <SelectContent>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="confirmed">Confirmed</SelectItem>
-                          <SelectItem value="shipped">Shipped</SelectItem>
-                          <SelectItem value="delivered">Delivered</SelectItem>
-                        </SelectContent>
+                    {/* STATUS */}
+                    <Select
+                      value={order.status}
+                      onValueChange={(value) =>
+                        handleStatusUpdate(order._id, value)
+                      }
+                    >
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
 
-                      </Select>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="confirmed">Confirmed</SelectItem>
+                        <SelectItem value="shipped">Shipped</SelectItem>
+                        <SelectItem value="delivered">Delivered</SelectItem>
+                      </SelectContent>
+                    </Select>
 
-                    </div>
+                    {/* DELETE BUTTON */}
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteOrder(order._id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
 
                   </div>
 

@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import { Plus, Package, ShoppingCart, Users, TrendingUp, Menu, X } from "lucide-react"
+import { Plus, Menu, X } from "lucide-react"
 import { Button } from "../../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { useAuth } from "../../context/auth-context"
@@ -11,23 +11,18 @@ import { apiService } from "../../services/api"
 export default function AdminDashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
+
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalOrders: 0,
     totalUsers: 0,
     totalRevenue: 0,
   })
+
   const [menuOpen, setMenuOpen] = useState(false)
 
-  useEffect(() => {
-    if (!user || user.role !== "admin") {
-      navigate("/")
-      return
-    }
-    fetchStats()
-  }, [user, navigate])
-
-  const fetchStats = async () => {
+  // ✅ CLEAN + REUSABLE STATS FUNCTION
+  const fetchStats = useCallback(async () => {
     try {
       const [productsData, ordersData, dashboardCounts] = await Promise.all([
         apiService.getProducts(),
@@ -47,7 +42,27 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Failed to fetch stats:", error)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (!user || user.role !== "admin") {
+      navigate("/")
+      return
+    }
+
+    fetchStats()
+  }, [user, navigate, fetchStats])
+
+  // ✅ AUTO REFRESH WHEN USER COMES BACK TO TAB
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchStats()
+    }
+
+    window.addEventListener("focus", handleFocus)
+
+    return () => window.removeEventListener("focus", handleFocus)
+  }, [fetchStats])
 
   if (!user || user.role !== "admin") return null
 
@@ -64,7 +79,7 @@ export default function AdminDashboard() {
               Tatheer Fatima Collection Admin
             </Link>
 
-            {/* DESKTOP MENU */}
+            {/* DESKTOP */}
             <div className="hidden md:flex items-center space-x-4">
 
               <Link to="/admin" className="text-blue-600 font-medium">
@@ -75,7 +90,6 @@ export default function AdminDashboard() {
                 Products
               </Link>
 
-              {/* ✅ NEW CATEGORY LINK */}
               <Link to="/admin/categories" className="text-gray-600 hover:text-gray-900">
                 Categories
               </Link>
@@ -98,19 +112,15 @@ export default function AdminDashboard() {
               </Link>
 
               <span className="text-sm text-gray-600">
-                Welcome, {user.name}!
+                Welcome, {user.name}
               </span>
 
             </div>
 
-            {/* MOBILE TOGGLE BUTTON */}
-            <div className="md:hidden flex items-center">
+            {/* MOBILE */}
+            <div className="md:hidden">
               <button onClick={() => setMenuOpen(!menuOpen)}>
-                {menuOpen ? (
-                  <X className="h-6 w-6" />
-                ) : (
-                  <Menu className="h-6 w-6" />
-                )}
+                {menuOpen ? <X /> : <Menu />}
               </button>
             </div>
 
@@ -121,71 +131,36 @@ export default function AdminDashboard() {
         {menuOpen && (
           <div className="md:hidden px-4 pb-4 space-y-2 bg-white border-t">
 
-            <Link
-              to="/admin"
-              className="block text-blue-600 font-medium"
-              onClick={() => setMenuOpen(false)}
-            >
+            <Link to="/admin" className="block text-blue-600" onClick={() => setMenuOpen(false)}>
               Dashboard
             </Link>
 
-            <Link
-              to="/admin/products"
-              className="block text-gray-600 hover:text-gray-900"
-              onClick={() => setMenuOpen(false)}
-            >
+            <Link to="/admin/products" className="block text-gray-600" onClick={() => setMenuOpen(false)}>
               Products
             </Link>
 
-            {/* ✅ NEW CATEGORY MOBILE LINK */}
-            <Link
-              to="/admin/categories"
-              className="block text-gray-600 hover:text-gray-900"
-              onClick={() => setMenuOpen(false)}
-            >
+            <Link to="/admin/categories" className="block text-gray-600" onClick={() => setMenuOpen(false)}>
               Categories
             </Link>
 
-            <Link
-              to="/admin/orders"
-              className="block text-gray-600 hover:text-gray-900"
-              onClick={() => setMenuOpen(false)}
-            >
+            <Link to="/admin/orders" className="block text-gray-600" onClick={() => setMenuOpen(false)}>
               Orders
             </Link>
-
-            <Link to="/admin/products/new" className="block" onClick={() => setMenuOpen(false)}>
-              <Button size="sm" className="w-full bg-green-600 hover:bg-green-700">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Product
-              </Button>
-            </Link>
-
-            <Link to="/" className="block" onClick={() => setMenuOpen(false)}>
-              <Button variant="outline" size="sm" className="w-full">
-                View Store
-              </Button>
-            </Link>
-
-            <span className="block text-sm text-gray-600 mt-2">
-              Welcome, {user.name}!
-            </span>
 
           </div>
         )}
       </nav>
 
-      {/* STATS */}
+      {/* DASHBOARD */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Admin Dashboard
-          </h1>
-          <p className="text-gray-600">
-            Manage your store and track performance
-          </p>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Admin Dashboard
+        </h1>
+
+        <p className="text-gray-600 mb-6">
+          Manage your store and track performance
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
@@ -209,7 +184,7 @@ export default function AdminDashboard() {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Total Revenue</CardTitle>
+              <CardTitle className="text-sm">Revenue</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -220,7 +195,7 @@ export default function AdminDashboard() {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Active Users</CardTitle>
+              <CardTitle className="text-sm">Users</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalUsers}</div>
@@ -228,6 +203,7 @@ export default function AdminDashboard() {
           </Card>
 
         </div>
+
       </div>
     </div>
   )
