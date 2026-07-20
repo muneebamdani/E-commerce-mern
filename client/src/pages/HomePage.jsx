@@ -20,6 +20,7 @@ export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const [selectedCategory, setSelectedCategory] = useState("Accessories")
+  
 
   const categories = ["Accessories", "Clothing", "Night Suits", "Watches"]
 
@@ -38,10 +39,11 @@ export default function HomePage() {
     }
   }
 
-  const cartCountForProduct = (productId) => {
-    const item = cartItems.find((i) => i.id === productId)
-    return item?.quantity || 0
-  }
+ const cartCountForProduct = (productId) => {
+  return cartItems
+    .filter((item) => item.id === productId)
+    .reduce((total, item) => total + item.quantity, 0)
+}
 
   const totalCartQuantity = cartItems.reduce(
     (total, item) => total + (item.quantity || 0),
@@ -260,61 +262,150 @@ export default function HomePage() {
 
                   <CardContent className="p-4 space-y-1">
 
-                    <h3 className="font-semibold">{product.name}</h3>
+  <h3 className="font-semibold">{product.name}</h3>
 
-                    {product.category && (
-                      <p className="text-xs text-gray-500">
-                        {product.category}
-                      </p>
-                    )}
+  {product.category && (
+    <p className="text-xs text-gray-500">
+      {product.category}
+    </p>
+  )}
 
-                    <p className="text-blue-600 font-bold">
-                      {formatCurrency(product.price)}
-                    </p>
+  <p className="text-blue-600 font-bold">
+    {formatCurrency(product.price)}
+  </p>
 
-                    {product.description && (
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {product.description}
-                      </p>
-                    )}
+  {product.description && (
+    <p className="text-sm text-gray-600 line-clamp-2">
+      {product.description}
+    </p>
+  )}
 
-                    {/* ONLY TEXT (NO STOCK NUMBER) */}
-                    <p className={`text-xs font-medium ${
-                      isOutOfStock ? "text-red-600" : "text-green-600"
-                    }`}>
-                      {isOutOfStock ? "Out of Stock" : "In Stock"}
-                    </p>
+  {/* Night Suit Options */}
+  {product.category === "Night Suits" && (
+    <>
+      {/* Size */}
+      <div className="mt-2">
+        <label className="block text-sm font-medium mb-1">
+          Size
+        </label>
 
-                    {quantity > 0 && (
-                      <p className="text-xs text-blue-600">
-                        In Cart: {quantity}
-                      </p>
-                    )}
+        <select
+          className="w-full border rounded-md p-2"
+          value={selectedSize[product._id] || ""}
+          onChange={(e) =>
+            setSelectedSize((prev) => ({
+              ...prev,
+              [product._id]: e.target.value,
+            }))
+          }
+        >
+          <option value="">Select Size</option>
 
-                  </CardContent>
+          {product.sizes?.map((size) => (
+            <option
+              key={size}
+              value={size}
+            >
+              {size}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Color */}
+      <div className="mt-2">
+        <label className="block text-sm font-medium mb-1">
+          Color
+        </label>
+
+        <select
+          className="w-full border rounded-md p-2"
+          value={selectedColor[product._id] || ""}
+          onChange={(e) =>
+            setSelectedColor((prev) => ({
+              ...prev,
+              [product._id]: e.target.value,
+            }))
+          }
+        >
+          <option value="">Select Color</option>
+
+          {product.colors?.map((color) => (
+            <option
+              key={color}
+              value={color}
+            >
+              {color}
+            </option>
+          ))}
+        </select>
+      </div>
+    </>
+  )}
+
+  <p
+    className={`text-xs font-medium ${
+      isOutOfStock
+        ? "text-red-600"
+        : "text-green-600"
+    }`}
+  >
+    {isOutOfStock
+      ? "Out of Stock"
+      : "In Stock"}
+  </p>
+
+  {quantity > 0 && (
+    <p className="text-xs text-blue-600">
+      In Cart: {quantity}
+    </p>
+  )}
+
+</CardContent>
 
                   <CardFooter>
 
                     <Button
-                      className="w-full"
-                      disabled={isOutOfStock}
-                      onClick={() => {
-                        if (isOutOfStock) return
-                        addToCart({
-                          id: product._id,
-                          name: product.name,
-                          price: product.price,
-                          image: product.image,
-                        })
-                      }}
-                    >
-                      {isOutOfStock
-                        ? "Out of Stock"
-                        : quantity > 0
-                        ? `Add More (${quantity})`
-                        : "Add to Cart"}
-                    </Button>
+  className="w-full"
+  disabled={isOutOfStock}
+  onClick={() => {
+    if (isOutOfStock) return
 
+    if (product.category === "Night Suits") {
+      if (!selectedSize[product._id]) {
+        alert("Please select a size")
+        return
+      }
+
+      if (!selectedColor[product._id]) {
+        alert("Please select a color")
+        return
+      }
+    }
+
+    addToCart({
+      id: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      stock: product.stock,
+      size:
+        product.category === "Night Suits"
+          ? selectedSize[product._id]
+          : null,
+      color:
+        product.category === "Night Suits"
+          ? selectedColor[product._id]
+          : null,
+    })
+  }}
+>
+  {isOutOfStock
+    ? "Out of Stock"
+    : quantity > 0
+    ? `Add More (${quantity})`
+    : "Add to Cart"}
+</Button>
                   </CardFooter>
 
                 </Card>

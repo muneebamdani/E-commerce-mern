@@ -25,30 +25,48 @@ export function CartProvider({ children }) {
     localStorage.setItem("cart", JSON.stringify(cartItems))
   }, [cartItems])
 
-  // ✅ ADD TO CART (FIXED)
+  // ✅ ADD TO CART
   const addToCart = (product) => {
     setCartItems((prev) => {
       const existingIndex = prev.findIndex(
-        (item) => item.id === product.id
+        (item) =>
+          item.id === product.id &&
+          item.size === product.size &&
+          item.color === product.color
       )
 
       if (existingIndex !== -1) {
         const updated = [...prev]
+
         updated[existingIndex] = {
           ...updated[existingIndex],
           quantity: updated[existingIndex].quantity + 1,
         }
+
         return updated
       }
 
-      return [...prev, { ...product, quantity: 1 }]
+      return [
+        ...prev,
+        {
+          ...product,
+          quantity: 1,
+        },
+      ]
     })
   }
 
   // ✅ REMOVE FROM CART
   const removeFromCart = (product) => {
     setCartItems((prev) =>
-      prev.filter((item) => item.id !== product.id)
+      prev.filter(
+        (item) =>
+          !(
+            item.id === product.id &&
+            item.size === product.size &&
+            item.color === product.color
+          )
+      )
     )
   }
 
@@ -61,7 +79,9 @@ export function CartProvider({ children }) {
 
     setCartItems((prev) =>
       prev.map((item) =>
-        item.id === product.id
+        item.id === product.id &&
+        item.size === product.size &&
+        item.color === product.color
           ? { ...item, quantity }
           : item
       )
@@ -76,8 +96,10 @@ export function CartProvider({ children }) {
     )
   }
 
-  // CLEAR CART
-  const clearCart = () => setCartItems([])
+  // ✅ CLEAR CART
+  const clearCart = () => {
+    setCartItems([])
+  }
 
   return (
     <CartContext.Provider
@@ -97,8 +119,10 @@ export function CartProvider({ children }) {
 
 export function useCart() {
   const context = useContext(CartContext)
+
   if (!context) {
     throw new Error("useCart must be used within CartProvider")
   }
+
   return context
 }
