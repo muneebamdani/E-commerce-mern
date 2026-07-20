@@ -20,7 +20,8 @@ export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const [selectedCategory, setSelectedCategory] = useState("Accessories")
-  
+  const [selectedSize, setSelectedSize] = useState({})
+const [selectedColor, setSelectedColor] = useState({})
 
   const categories = ["Accessories", "Clothing", "Night Suits", "Watches"]
 
