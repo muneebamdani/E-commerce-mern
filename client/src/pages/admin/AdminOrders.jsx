@@ -216,16 +216,31 @@ export default function AdminOrders() {
                   {/* ITEMS */}
                   <div className="space-y-2 mb-4">
 
-                    {order.items.map((item, i) => (
-                      <div key={i} className="flex justify-between text-sm">
-                        <span>
-                          {item.product.name} x {item.quantity}
-                        </span>
-                        <span>
-                          Rs {(item.price * item.quantity).toFixed(2)}
-                        </span>
-                      </div>
-                    ))}
+                   {order.items.map((item, i) => (
+  <div key={i} className="flex justify-between text-sm">
+
+    <div>
+      <p>{item.product.name} × {item.quantity}</p>
+
+      {item.size && (
+        <p className="text-xs text-gray-500">
+          Size: {item.size}
+        </p>
+      )}
+
+      {item.color && (
+        <p className="text-xs text-gray-500">
+          Color: {item.color}
+        </p>
+      )}
+    </div>
+
+    <span>
+      Rs {(item.price * item.quantity).toFixed(2)}
+    </span>
+
+  </div>
+))}
 
                   </div>
 
